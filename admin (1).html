@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Lenbrook Files — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#171814;--panel:#22241f;--panel2:#292c26;--paper:#f4f0e6;--ink:#24241f;
+  --muted:#9e9f96;--line:#3b3e36;--green:#3d594c;--green2:#587462;--gold:#b49a64;
+  --danger:#a9524b;--white:#fff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#171814,#2a271f);color:#f4f0e6;font-family:"DM Sans",sans-serif;min-height:100vh}
+button,input,textarea,select{font:inherit}
+.hidden{display:none!important}
+.shell{min-height:100vh}
+.login{min-height:100vh;display:grid;place-items:center;padding:24px}
+.login-card{width:min(480px,100%);background:var(--paper);color:var(--ink);border-radius:28px;padding:34px;box-shadow:0 30px 90px #0007;border:1px solid #d7ceb9}
+.brand-kicker{font:700 11px/1 Manrope;letter-spacing:.18em;text-transform:uppercase;color:#806e4e}
+.login h1{font:700 42px/1 Playfair Display;margin:15px 0 8px}
+.login p{color:#6d6c65;line-height:1.55}
+.field{display:grid;gap:7px;margin:18px 0}
+.field label{font:700 11px Manrope;text-transform:uppercase;letter-spacing:.1em}
+.input{width:100%;border:1px solid #c9c1b2;border-radius:14px;padding:14px 15px;background:#fff;color:#1c1d19;outline:none}
+.input:focus{border-color:#627b6a;box-shadow:0 0 0 4px #627b6a22}
+.btn{border:0;border-radius:14px;padding:13px 17px;background:var(--green);color:white;font-weight:800;cursor:pointer}
+.btn:hover{filter:brightness(1.07)}
+.btn.secondary{background:#e8e3d8;color:#37372f}
+.btn.danger{background:var(--danger)}
+.btn.small{padding:8px 11px;border-radius:10px;font-size:13px}
+.err{min-height:20px;color:#a33d37;font-weight:600;font-size:13px;margin-top:9px}
+.admin-layout{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+.sidebar{background:#11120f;border-right:1px solid #30322d;padding:24px 18px;position:sticky;top:0;height:100vh}
+.side-brand{padding:8px 8px 26px;border-bottom:1px solid #30322d}
+.side-brand h2{font:700 24px/1.1 Playfair Display;margin:8px 0}
+.side-brand span{font:700 10px Manrope;text-transform:uppercase;letter-spacing:.16em;color:#a89369}
+.nav{display:grid;gap:8px;margin-top:22px}
+.nav button{width:100%;text-align:left;background:transparent;color:#c7c9c1;border:0;border-radius:11px;padding:11px 12px;font-weight:700;cursor:pointer}
+.nav button.active,.nav button:hover{background:#293128;color:#fff}
+.sidebar-bottom{position:absolute;bottom:20px;left:18px;right:18px}
+.user-email{font-size:12px;color:#a4a59e;word-break:break-all;margin-bottom:10px}
+.content{padding:34px;min-width:0}
+.topbar{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:26px}
+.topbar h1{font:700 40px/1 Playfair Display;margin:0}
+.topbar p{margin:8px 0 0;color:#aaa9a0}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:26px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px}
+.stat b{display:block;font:800 34px/1 Manrope;margin-bottom:8px}
+.stat span{color:#9d9f96;font-size:13px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.panel-head h3{margin:0;font:800 16px Manrope}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th,td{text-align:left;padding:13px 15px;border-bottom:1px solid #363832;font-size:13px}
+th{font:700 10px Manrope;text-transform:uppercase;letter-spacing:.1em;color:#a8a99f;background:#1c1e1a;position:sticky;top:0}
+td{color:#e5e4de}
+tr:hover td{background:#252822}
+.status{display:inline-flex;padding:5px 9px;border-radius:999px;font:700 11px Manrope}
+.status.submitted{background:#355445;color:#dff5e6}
+.status.in_progress{background:#5d5032;color:#fff0c6}
+.qtext{max-width:520px;white-space:normal;line-height:1.45}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+.search{min-width:220px;background:#171814;color:white;border:1px solid #3c3e37;border-radius:11px;padding:10px 12px}
+.view{display:none}
+.view.active{display:block}
+.drawer{position:fixed;inset:0;background:#0008;display:grid;grid-template-columns:1fr min(720px,92vw);z-index:20}
+.drawer-card{grid-column:2;background:#1c1e1a;height:100%;overflow:auto;padding:26px;border-left:1px solid #45483f}
+.drawer-top{display:flex;justify-content:space-between;align-items:start;gap:16px;margin-bottom:20px}
+.drawer-top h2{font:700 30px Playfair Display;margin:0}
+.response{border:1px solid #3b3e36;border-radius:15px;padding:15px;margin:10px 0;background:#232620}
+.response .num{font:800 10px Manrope;letter-spacing:.12em;color:#a99670;text-transform:uppercase}
+.response .question{font-weight:700;margin:6px 0}
+.response .answer{color:#d7d8d0}
+.empty{padding:30px;color:#9ea097;text-align:center}
+.edit-grid{display:grid;grid-template-columns:1fr 140px 140px;gap:10px;align-items:start}
+.modal{position:fixed;inset:0;background:#0009;display:grid;place-items:center;padding:20px;z-index:30}
+.modal-card{width:min(680px,100%);background:var(--paper);color:var(--ink);border-radius:20px;padding:24px}
+.modal-card h2{font:700 30px Playfair Display;margin:0 0 14px}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+@media(max-width:950px){.admin-layout{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.sidebar-bottom{position:static;margin-top:24px}.nav{grid-template-columns:repeat(4,1fr)}.content{padding:22px}.cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.nav{grid-template-columns:1fr 1fr}.cards{grid-template-columns:1fr 1fr}.topbar{align-items:start;flex-direction:column}.content{padding:16px}.login-card{padding:25px}.login h1{font-size:36px}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<section id="loginScreen" class="login">
+  <div class="login-card">
+    <div class="brand-kicker">Lenbrook Industries · Administration</div>
+    <h1>The Lenbrook Files</h1>
+    <p>Restricted organizer access. Sign in with an approved administrator account.</p>
+    <div class="field">
+      <label for="adminEmail">Email</label>
+      <input id="adminEmail" class="input" type="email" autocomplete="username" placeholder="you@lenbrook.com">
+    </div>
+    <div class="field">
+      <label for="adminPassword">Password</label>
+      <input id="adminPassword" class="input" type="password" autocomplete="current-password" placeholder="Password">
+    </div>
+    <button id="loginBtn" class="btn" style="width:100%">Open Admin Dashboard →</button>
+    <div id="loginError" class="err"></div>
+  </div>
+</section>
+
+<section id="adminScreen" class="admin-layout hidden">
+  <aside class="sidebar">
+    <div class="side-brand">
+      <div class="brand-kicker">Organizer Console</div>
+      <h2>The Lenbrook Files</h2>
+    </div>
+    <div class="nav">
+      <button class="active" data-view="dashboardView">Dashboard</button>
+      <button data-view="playersView">Players</button>
+      <button data-view="questionsView">Questions</button>
+      <button data-view="reviewView">Review</button>
+    </div>
+    <div class="sidebar-bottom">
+      <div id="adminEmailDisplay" class="user-email"></div>
+      <button id="logoutBtn" class="btn secondary" style="width:100%">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <section id="dashboardView" class="view active">
+      <div class="topbar"><div><h1>Dashboard</h1><p>Live overview of The Lenbrook Files.</p></div><button class="btn secondary" id="refreshDash">Refresh</button></div>
+      <div class="cards">
+        <div class="stat"><b id="statPlayers">—</b><span>Total players</span></div>
+        <div class="stat"><b id="statSubmitted">—</b><span>Submitted dossiers</span></div>
+        <div class="stat"><b id="statProgress">—</b><span>In progress</span></div>
+        <div class="stat"><b id="statQuestions">—</b><span>Active questions</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Recent Players</h3></div>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Status</th><th>Filed</th><th>Started</th><th></th></tr></thead><tbody id="recentPlayers"></tbody></table></div>
+      </div>
+    </section>
+
+    <section id="playersView" class="view">
+      <div class="topbar"><div><h1>Players</h1><p>Open a dossier to inspect the participant's responses.</p></div>
+        <div class="toolbar"><input id="playerSearch" class="search" placeholder="Search player…"><button id="refreshPlayers" class="btn secondary">Refresh</button></div>
+      </div>
+      <div class="panel"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Status</th><th>Filed</th><th>Pending</th><th>Submission ID</th><th></th></tr></thead><tbody id="playersTable"></tbody></table></div></div>
+    </section>
+
+    <section id="questionsView" class="view">
+      <div class="topbar"><div><h1>Questions</h1><p>Edit the live question set without touching Firestore manually.</p></div>
+        <div class="toolbar"><button id="addQuestionBtn" class="btn">+ Add Question</button><button id="refreshQuestions" class="btn secondary">Refresh</button></div>
+      </div>
+      <div class="panel"><div class="table-wrap"><table><thead><tr><th>Order</th><th>Question</th><th>Category</th><th>Active</th><th></th></tr></thead><tbody id="questionsTable"></tbody></table></div></div>
+    </section>
+
+    <section id="reviewView" class="view">
+      <div class="topbar"><div><h1>Answer Review</h1><p>Review submitted responses against the private known-answer list.</p></div><button id="refreshReview" class="btn secondary">Refresh</button></div>
+      <div class="panel">
+        <div class="panel-head"><h3>Review Queue</h3></div>
+        <div id="reviewQueue" class="empty">Admin V1 is connected to the private answer keys. Detailed approve/reject grouping comes in the next pass.</div>
+      </div>
+    </section>
+  </main>
+</section>
+
+<div id="playerDrawer" class="drawer hidden">
+  <div class="drawer-card">
+    <div class="drawer-top"><div><div class="brand-kicker">Participant Dossier</div><h2 id="drawerName">Player</h2></div><button id="closeDrawer" class="btn secondary">Close</button></div>
+    <div id="drawerMeta"></div>
+    <div id="drawerResponses"></div>
+  </div>
+</div>
+
+<div id="questionModal" class="modal hidden">
+  <div class="modal-card">
+    <h2 id="questionModalTitle">Edit Question</h2>
+    <div class="field"><label>Question</label><textarea id="qText" class="input" rows="4"></textarea></div>
+    <div class="edit-grid">
+      <div class="field"><label>Category</label><input id="qCategory" class="input" value="General"></div>
+      <div class="field"><label>Order</label><input id="qOrder" class="input" type="number" min="1"></div>
+      <div class="field"><label>Active</label><select id="qActive" class="input"><option value="true">Yes</option><option value="false">No</option></select></div>
+    </div>
+    <div class="field"><label>Known valid answers (one per line)</label><textarea id="qAnswers" class="input" rows="6" placeholder="Person One&#10;Person Two"></textarea></div>
+    <div id="qError" class="err"></div>
+    <div class="modal-actions"><button id="cancelQ" class="btn secondary">Cancel</button><button id="saveQ" class="btn">Save Question</button></div>
+  </div>
+</div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBaWX8m5Y6WpX5sJjHzp7VlxfPZQKCsNrU",
+  authDomain: "lenbrook-files.firebaseapp.com",
+  projectId: "lenbrook-files",
+  storageBucket: "lenbrook-files.firebasestorage.app",
+  messagingSenderId: "590853900657",
+  appId: "1:590853900657:web:160d40222e624c711a0ed0",
+  measurementId: "G-11GQ571TKT"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const db=firebase.firestore();
+const $=id=>document.getElementById(id);
+let playersCache=[], questionsCache=[], editingQuestionId=null;
+
+function fmtTime(ts){
+  if(!ts) return '—';
+  try{return ts.toDate().toLocaleString([], {dateStyle:'medium',timeStyle:'short'});}catch{return '—'}
+}
+function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function statusBadge(status){return `<span class="status ${status}">${status==='submitted'?'Submitted':'In progress'}</span>`}
+
+async function isAdmin(user){
+  if(!user) return false;
+  const snap=await db.collection('admins').doc(user.uid).get();
+  return snap.exists && snap.data().active !== false;
+}
+
+auth.onAuthStateChanged(async user=>{
+  if(!user){
+    $('loginScreen').classList.remove('hidden');
+    $('adminScreen').classList.add('hidden');
+    return;
+  }
+  try{
+    if(!(await isAdmin(user))){
+      await auth.signOut();
+      $('loginError').textContent='This account is not authorized as an administrator.';
+      return;
+    }
+    $('adminEmailDisplay').textContent=user.email||user.uid;
+    $('loginScreen').classList.add('hidden');
+    $('adminScreen').classList.remove('hidden');
+    await loadAll();
+  }catch(err){
+    console.error(err);
+    $('loginError').textContent='Could not verify administrator access.';
+  }
+});
+
+$('loginBtn').addEventListener('click',async()=>{
+  $('loginError').textContent='';
+  const email=$('adminEmail').value.trim(), password=$('adminPassword').value;
+  if(!email||!password){$('loginError').textContent='Enter your email and password.';return}
+  $('loginBtn').disabled=true;$('loginBtn').textContent='Signing in…';
+  try{await auth.signInWithEmailAndPassword(email,password)}
+  catch(err){console.error(err);$('loginError').textContent='Sign-in failed. Check your account and password.'}
+  finally{$('loginBtn').disabled=false;$('loginBtn').textContent='Open Admin Dashboard →'}
+});
+$('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});
+$('logoutBtn').addEventListener('click',()=>auth.signOut());
+
+document.querySelectorAll('.nav button').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b===btn));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===btn.dataset.view));
+}));
+
+async function loadPlayers(){
+  const snap=await db.collection('players').get();
+  playersCache=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{
+    const at=a.updatedAt?.seconds||0, bt=b.updatedAt?.seconds||0; return bt-at;
+  });
+  renderPlayers();
+  renderRecentPlayers();
+}
+async function loadQuestions(){
+  const snap=await db.collection('questions').get();
+  questionsCache=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||9999)-(b.order||9999));
+  renderQuestions();
+}
+async function loadDashboard(){
+  $('statPlayers').textContent=playersCache.length;
+  $('statSubmitted').textContent=playersCache.filter(p=>p.status==='submitted').length;
+  $('statProgress').textContent=playersCache.filter(p=>p.status!=='submitted').length;
+  $('statQuestions').textContent=questionsCache.filter(q=>q.active!==false).length;
+}
+async function loadAll(){await Promise.all([loadPlayers(),loadQuestions()]);await loadDashboard()}
+
+function renderRecentPlayers(){
+  $('recentPlayers').innerHTML=playersCache.slice(0,8).map(p=>`<tr>
+    <td>${esc(p.name||'Unnamed')}</td><td>${statusBadge(p.status)}</td><td>${p.filedCount||0}</td><td>${fmtTime(p.startedAt)}</td>
+    <td><button class="btn small secondary" onclick="openPlayer('${p.id}')">Open</button></td></tr>`).join('')||'<tr><td colspan="5">No players yet.</td></tr>';
+}
+function renderPlayers(){
+  const q=$('playerSearch').value.trim().toLowerCase();
+  const rows=playersCache.filter(p=>!q||String(p.name||'').toLowerCase().includes(q));
+  $('playersTable').innerHTML=rows.map(p=>`<tr>
+    <td>${esc(p.name||'Unnamed')}</td><td>${statusBadge(p.status)}</td><td>${p.filedCount||0}</td><td>${p.pendingCount||0}</td>
+    <td>${esc(p.submissionId||'—')}</td><td><button class="btn small secondary" onclick="openPlayer('${p.id}')">Open Dossier</button></td></tr>`).join('')||'<tr><td colspan="6">No players found.</td></tr>';
+}
+$('playerSearch').addEventListener('input',renderPlayers);
+
+window.openPlayer=async id=>{
+  const p=playersCache.find(x=>x.id===id); if(!p)return;
+  $('drawerName').textContent=p.name||'Unnamed Player';
+  $('drawerMeta').innerHTML=`<p>${statusBadge(p.status)} &nbsp; ${esc(p.submissionId||'')}</p>`;
+  $('drawerResponses').innerHTML='<div class="empty">Loading responses…</div>';
+  $('playerDrawer').classList.remove('hidden');
+  const snap=await db.collection('players').doc(id).collection('responses').get();
+  const responses=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||9999)-(b.order||9999));
+  $('drawerResponses').innerHTML=responses.map(r=>`<div class="response">
+    <div class="num">File ${String(r.order||'').padStart(2,'0')} · ${esc(r.status||'')}</div>
+    <div class="question">${esc(r.questionText||r.questionId||r.id)}</div>
+    <div class="answer">${r.answer?esc(r.answer):'<em>No answer filed</em>'}</div>
+  </div>`).join('')||'<div class="empty">No saved responses.</div>';
+};
+$('closeDrawer').addEventListener('click',()=>$('playerDrawer').classList.add('hidden'));
+
+function renderQuestions(){
+  $('questionsTable').innerHTML=questionsCache.map(q=>`<tr>
+    <td>${q.order??'—'}</td><td class="qtext">${esc(q.text||'')}</td><td>${esc(q.category||'General')}</td><td>${q.active===false?'No':'Yes'}</td>
+    <td><button class="btn small secondary" onclick="editQuestion('${q.id}')">Edit</button></td></tr>`).join('');
+}
+
+window.editQuestion=async id=>{
+  const q=questionsCache.find(x=>x.id===id);if(!q)return;
+  editingQuestionId=id;
+  $('questionModalTitle').textContent='Edit Question';
+  $('qText').value=q.text||'';
+  $('qCategory').value=q.category||'General';
+  $('qOrder').value=q.order||'';
+  $('qActive').value=String(q.active!==false);
+  $('qAnswers').value='';
+  $('qError').textContent='';
+  $('questionModal').classList.remove('hidden');
+  try{
+    const a=await db.collection('answerKeys').doc(id).get();
+    if(a.exists)$('qAnswers').value=(a.data().knownAnswers||[]).join('\n');
+  }catch(err){console.error(err);$('qError').textContent='Could not load private answer key.'}
+};
+
+$('addQuestionBtn').addEventListener('click',()=>{
+  editingQuestionId=null;
+  $('questionModalTitle').textContent='Add Question';
+  $('qText').value='';$('qCategory').value='General';
+  $('qOrder').value=(questionsCache.reduce((m,q)=>Math.max(m,Number(q.order)||0),0)+1);
+  $('qActive').value='true';$('qAnswers').value='';$('qError').textContent='';
+  $('questionModal').classList.remove('hidden');
+});
+$('cancelQ').addEventListener('click',()=>$('questionModal').classList.add('hidden'));
+
+$('saveQ').addEventListener('click',async()=>{
+  const text=$('qText').value.trim(), category=$('qCategory').value.trim()||'General';
+  const order=Number($('qOrder').value), active=$('qActive').value==='true';
+  const knownAnswers=$('qAnswers').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  if(!text||!Number.isFinite(order)||order<1){$('qError').textContent='Question text and a valid order are required.';return}
+  $('saveQ').disabled=true;$('saveQ').textContent='Saving…';$('qError').textContent='';
+  try{
+    const id=editingQuestionId||`q${String(order).padStart(3,'0')}`;
+    const batch=db.batch();
+    batch.set(db.collection('questions').doc(id),{text,category,order,active},{merge:true});
+    batch.set(db.collection('answerKeys').doc(id),{knownAnswers,acceptOtherNames:true},{merge:true});
+    await batch.commit();
+    $('questionModal').classList.add('hidden');
+    await loadQuestions();await loadDashboard();
+  }catch(err){console.error(err);$('qError').textContent='Could not save. Check admin permissions and try again.'}
+  finally{$('saveQ').disabled=false;$('saveQ').textContent='Save Question'}
+});
+
+$('refreshDash').addEventListener('click',loadAll);
+$('refreshPlayers').addEventListener('click',loadPlayers);
+$('refreshQuestions').addEventListener('click',loadQuestions);
+$('refreshReview').addEventListener('click',()=>{});
+
+</script>
+</body>
+</html>
