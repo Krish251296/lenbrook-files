@@ -3,371 +3,110 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>The Lenbrook Files — Admin</title>
+<title>The Lenbrook Files — Admin V2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#171814;--panel:#22241f;--panel2:#292c26;--paper:#f4f0e6;--ink:#24241f;
-  --muted:#9e9f96;--line:#3b3e36;--green:#3d594c;--green2:#587462;--gold:#b49a64;
-  --danger:#a9524b;--white:#fff;
-}
-*{box-sizing:border-box}
-body{margin:0;background:linear-gradient(135deg,#171814,#2a271f);color:#f4f0e6;font-family:"DM Sans",sans-serif;min-height:100vh}
-button,input,textarea,select{font:inherit}
-.hidden{display:none!important}
-.shell{min-height:100vh}
-.login{min-height:100vh;display:grid;place-items:center;padding:24px}
-.login-card{width:min(480px,100%);background:var(--paper);color:var(--ink);border-radius:28px;padding:34px;box-shadow:0 30px 90px #0007;border:1px solid #d7ceb9}
-.brand-kicker{font:700 11px/1 Manrope;letter-spacing:.18em;text-transform:uppercase;color:#806e4e}
-.login h1{font:700 42px/1 Playfair Display;margin:15px 0 8px}
-.login p{color:#6d6c65;line-height:1.55}
-.field{display:grid;gap:7px;margin:18px 0}
-.field label{font:700 11px Manrope;text-transform:uppercase;letter-spacing:.1em}
-.input{width:100%;border:1px solid #c9c1b2;border-radius:14px;padding:14px 15px;background:#fff;color:#1c1d19;outline:none}
-.input:focus{border-color:#627b6a;box-shadow:0 0 0 4px #627b6a22}
-.btn{border:0;border-radius:14px;padding:13px 17px;background:var(--green);color:white;font-weight:800;cursor:pointer}
-.btn:hover{filter:brightness(1.07)}
-.btn.secondary{background:#e8e3d8;color:#37372f}
-.btn.danger{background:var(--danger)}
-.btn.small{padding:8px 11px;border-radius:10px;font-size:13px}
-.err{min-height:20px;color:#a33d37;font-weight:600;font-size:13px;margin-top:9px}
-.admin-layout{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
-.sidebar{background:#11120f;border-right:1px solid #30322d;padding:24px 18px;position:sticky;top:0;height:100vh}
-.side-brand{padding:8px 8px 26px;border-bottom:1px solid #30322d}
-.side-brand h2{font:700 24px/1.1 Playfair Display;margin:8px 0}
-.side-brand span{font:700 10px Manrope;text-transform:uppercase;letter-spacing:.16em;color:#a89369}
-.nav{display:grid;gap:8px;margin-top:22px}
-.nav button{width:100%;text-align:left;background:transparent;color:#c7c9c1;border:0;border-radius:11px;padding:11px 12px;font-weight:700;cursor:pointer}
-.nav button.active,.nav button:hover{background:#293128;color:#fff}
-.sidebar-bottom{position:absolute;bottom:20px;left:18px;right:18px}
-.user-email{font-size:12px;color:#a4a59e;word-break:break-all;margin-bottom:10px}
-.content{padding:34px;min-width:0}
-.topbar{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:26px}
-.topbar h1{font:700 40px/1 Playfair Display;margin:0}
-.topbar p{margin:8px 0 0;color:#aaa9a0}
-.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:26px}
-.stat{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px}
-.stat b{display:block;font:800 34px/1 Manrope;margin-bottom:8px}
-.stat span{color:#9d9f96;font-size:13px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden}
-.panel-head{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:18px 20px;border-bottom:1px solid var(--line)}
-.panel-head h3{margin:0;font:800 16px Manrope}
-.table-wrap{overflow:auto}
-table{width:100%;border-collapse:collapse;min-width:760px}
-th,td{text-align:left;padding:13px 15px;border-bottom:1px solid #363832;font-size:13px}
-th{font:700 10px Manrope;text-transform:uppercase;letter-spacing:.1em;color:#a8a99f;background:#1c1e1a;position:sticky;top:0}
-td{color:#e5e4de}
-tr:hover td{background:#252822}
-.status{display:inline-flex;padding:5px 9px;border-radius:999px;font:700 11px Manrope}
-.status.submitted{background:#355445;color:#dff5e6}
-.status.in_progress{background:#5d5032;color:#fff0c6}
-.qtext{max-width:520px;white-space:normal;line-height:1.45}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap}
-.search{min-width:220px;background:#171814;color:white;border:1px solid #3c3e37;border-radius:11px;padding:10px 12px}
-.view{display:none}
-.view.active{display:block}
-.drawer{position:fixed;inset:0;background:#0008;display:grid;grid-template-columns:1fr min(720px,92vw);z-index:20}
-.drawer-card{grid-column:2;background:#1c1e1a;height:100%;overflow:auto;padding:26px;border-left:1px solid #45483f}
-.drawer-top{display:flex;justify-content:space-between;align-items:start;gap:16px;margin-bottom:20px}
-.drawer-top h2{font:700 30px Playfair Display;margin:0}
-.response{border:1px solid #3b3e36;border-radius:15px;padding:15px;margin:10px 0;background:#232620}
-.response .num{font:800 10px Manrope;letter-spacing:.12em;color:#a99670;text-transform:uppercase}
-.response .question{font-weight:700;margin:6px 0}
-.response .answer{color:#d7d8d0}
-.empty{padding:30px;color:#9ea097;text-align:center}
-.edit-grid{display:grid;grid-template-columns:1fr 140px 140px;gap:10px;align-items:start}
-.modal{position:fixed;inset:0;background:#0009;display:grid;place-items:center;padding:20px;z-index:30}
-.modal-card{width:min(680px,100%);background:var(--paper);color:var(--ink);border-radius:20px;padding:24px}
-.modal-card h2{font:700 30px Playfair Display;margin:0 0 14px}
-.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+:root{--bg:#171814;--panel:#22241f;--panel2:#292c26;--paper:#f4f0e6;--ink:#24241f;--muted:#9e9f96;--line:#3b3e36;--green:#3d594c;--green2:#587462;--gold:#b49a64;--danger:#a9524b;--amber:#a67b3e;--white:#fff;--blue:#56748e}
+*{box-sizing:border-box} body{margin:0;background:linear-gradient(135deg,#171814,#2a271f);color:#f4f0e6;font-family:"DM Sans",sans-serif;min-height:100vh} button,input,textarea,select{font:inherit}.hidden{display:none!important}.shell{min-height:100vh}
+.login{min-height:100vh;display:grid;place-items:center;padding:24px}.login-card{width:min(480px,100%);background:var(--paper);color:var(--ink);border-radius:28px;padding:34px;box-shadow:0 30px 90px #0007;border:1px solid #d7ceb9}.brand-kicker{font:700 11px/1 Manrope;letter-spacing:.18em;text-transform:uppercase;color:#806e4e}.login h1{font:700 42px/1 Playfair Display;margin:15px 0 8px}.login p{color:#6d6c65;line-height:1.55}.field{display:grid;gap:7px;margin:18px 0}.field label{font:700 11px Manrope;text-transform:uppercase;letter-spacing:.1em}.input{width:100%;border:1px solid #c9c1b2;border-radius:14px;padding:14px 15px;background:#fff;color:#1c1d19;outline:none}.input:focus{border-color:#627b6a;box-shadow:0 0 0 4px #627b6a22}.btn{border:0;border-radius:14px;padding:13px 17px;background:var(--green);color:white;font-weight:800;cursor:pointer}.btn:hover{filter:brightness(1.07)}.btn:disabled{opacity:.55;cursor:not-allowed}.btn.secondary{background:#e8e3d8;color:#37372f}.btn.danger{background:var(--danger)}.btn.amber{background:var(--amber)}.btn.small{padding:8px 11px;border-radius:10px;font-size:13px}.err{min-height:20px;color:#a33d37;font-weight:600;font-size:13px;margin-top:9px}.ok{color:#5f8d6d;font-weight:700;font-size:13px}
+.admin-layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}.sidebar{background:#11120f;border-right:1px solid #30322d;padding:24px 18px;position:sticky;top:0;height:100vh}.side-brand{padding:8px 8px 26px;border-bottom:1px solid #30322d}.side-brand h2{font:700 24px/1.1 Playfair Display;margin:8px 0}.side-brand span{font:700 10px Manrope;text-transform:uppercase;letter-spacing:.16em;color:#a89369}.nav{display:grid;gap:8px;margin-top:22px}.nav button{width:100%;text-align:left;background:transparent;color:#c7c9c1;border:0;border-radius:11px;padding:11px 12px;font-weight:700;cursor:pointer}.nav button.active,.nav button:hover{background:#293128;color:#fff}.sidebar-bottom{position:absolute;bottom:20px;left:18px;right:18px}.user-email{font-size:12px;color:#a4a59e;word-break:break-all;margin-bottom:10px}.content{padding:34px;min-width:0}.topbar{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:26px}.topbar h1{font:700 40px/1 Playfair Display;margin:0}.topbar p{margin:8px 0 0;color:#aaa9a0}.cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-bottom:26px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px}.stat b{display:block;font:800 34px/1 Manrope;margin-bottom:8px}.stat span{color:#9d9f96;font-size:13px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-bottom:18px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:18px 20px;border-bottom:1px solid var(--line)}.panel-head h3{margin:0;font:800 16px Manrope}.panel-head p{margin:4px 0 0;color:#9ea097;font-size:12px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:13px 15px;border-bottom:1px solid #363832;font-size:13px}th{font:700 10px Manrope;text-transform:uppercase;letter-spacing:.1em;color:#a8a99f;background:#1c1e1a;position:sticky;top:0}td{color:#e5e4de}tr:hover td{background:#252822}.status{display:inline-flex;padding:5px 9px;border-radius:999px;font:700 11px Manrope}.status.submitted{background:#355445;color:#dff5e6}.status.in_progress{background:#5d5032;color:#fff0c6}.status.scored{background:#324e67;color:#e3f3ff}.qtext{max-width:520px;white-space:normal;line-height:1.45}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.search{min-width:220px;background:#171814;color:white;border:1px solid #3c3e37;border-radius:11px;padding:10px 12px}.view{display:none}.view.active{display:block}
+.drawer{position:fixed;inset:0;background:#0008;display:grid;grid-template-columns:1fr min(760px,92vw);z-index:20}.drawer-card{grid-column:2;background:#1c1e1a;height:100%;overflow:auto;padding:26px;border-left:1px solid #45483f}.drawer-top{display:flex;justify-content:space-between;align-items:start;gap:16px;margin-bottom:20px}.drawer-top h2{font:700 30px Playfair Display;margin:0}.response{border:1px solid #3b3e36;border-radius:15px;padding:15px;margin:10px 0;background:#232620}.response .num{font:800 10px Manrope;letter-spacing:.12em;color:#a99670;text-transform:uppercase}.response .question{font-weight:700;margin:6px 0}.response .answer{color:#d7d8d0}.empty{padding:30px;color:#9ea097;text-align:center}.edit-grid{display:grid;grid-template-columns:1fr 140px 140px;gap:10px;align-items:start}.modal{position:fixed;inset:0;background:#0009;display:grid;place-items:center;padding:20px;z-index:30}.modal-card{width:min(760px,100%);max-height:90vh;overflow:auto;background:var(--paper);color:var(--ink);border-radius:20px;padding:24px}.modal-card.wide{width:min(1150px,96vw)}.modal-card h2{font:700 30px Playfair Display;margin:0 0 14px}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;flex-wrap:wrap}
+.notice{padding:14px 16px;border-radius:14px;border:1px solid #4b4c43;background:#1b1d19;color:#c9cabf;font-size:13px;line-height:1.5;margin-bottom:16px}.notice strong{color:#fff}.notice.warn{border-color:#69572f;background:#292417}.review-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.review-card{background:#1d1f1b;border:1px solid #393c34;border-radius:15px;padding:16px}.review-card b{display:block;font:800 28px Manrope}.review-card span{font-size:12px;color:#9fa198}.review-group{border:1px solid #3a3d35;border-radius:16px;margin:12px;padding:16px;background:#20231e}.review-top{display:flex;justify-content:space-between;gap:16px;align-items:start}.review-question{font-weight:800;line-height:1.45}.candidate{font:800 19px Manrope;color:#efe9d9;margin:12px 0 8px}.meta{color:#9d9f96;font-size:12px;line-height:1.5}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.chip{border-radius:999px;padding:5px 8px;background:#31342d;font-size:11px;color:#caccc2}.review-actions-inline{display:flex;gap:8px;flex-wrap:wrap}.score-good{font-weight:800;color:#97c5a6}.score-pending{font-weight:800;color:#d8b775}.bulk-grid{display:grid;gap:10px}.bulk-row{display:grid;grid-template-columns:54px minmax(0,1.4fr) minmax(0,1fr);gap:10px;align-items:start;border:1px solid #d9d0bf;border-radius:14px;padding:12px;background:#fffaf0}.bulk-num{font:800 12px Manrope;color:#7e6d4e;padding-top:12px}.bulk-row textarea{min-height:74px;resize:vertical}.bulk-head{display:grid;grid-template-columns:54px minmax(0,1.4fr) minmax(0,1fr);gap:10px;font:800 10px Manrope;text-transform:uppercase;letter-spacing:.08em;color:#766b58;margin:8px 12px}.score-table .score-num{font:800 16px Manrope}.tag{display:inline-flex;border-radius:999px;padding:4px 8px;font:700 10px Manrope;background:#33372f;color:#c7cbbf}.tag.pending{background:#5a492d;color:#ffe9bc}.tag.final{background:#31513f;color:#e2f6e8}
+@media(max-width:1100px){.cards{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:950px){.admin-layout{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.sidebar-bottom{position:static;margin-top:24px}.nav{grid-template-columns:repeat(4,1fr)}.content{padding:22px}.cards{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:620px){.nav{grid-template-columns:1fr 1fr}.cards{grid-template-columns:1fr 1fr}.topbar{align-items:start;flex-direction:column}.content{padding:16px}.login-card{padding:25px}.login h1{font-size:36px}}
+@media(max-width:720px){.bulk-head{display:none}.bulk-row{grid-template-columns:1fr}.bulk-num{padding-top:0}.review-summary{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.nav{grid-template-columns:1fr 1fr}.cards{grid-template-columns:1fr 1fr}.topbar{align-items:start;flex-direction:column}.content{padding:16px}.login-card{padding:25px}.login h1{font-size:36px}.review-top{flex-direction:column}}
 </style>
 </head>
 <body>
 <div class="shell">
-
-<section id="loginScreen" class="login">
-  <div class="login-card">
-    <div class="brand-kicker">Lenbrook Industries · Administration</div>
-    <h1>The Lenbrook Files</h1>
-    <p>Restricted organizer access. Sign in with an approved administrator account.</p>
-    <div class="field">
-      <label for="adminEmail">Email</label>
-      <input id="adminEmail" class="input" type="email" autocomplete="username" placeholder="you@lenbrook.com">
-    </div>
-    <div class="field">
-      <label for="adminPassword">Password</label>
-      <input id="adminPassword" class="input" type="password" autocomplete="current-password" placeholder="Password">
-    </div>
-    <button id="loginBtn" class="btn" style="width:100%">Open Admin Dashboard →</button>
-    <div id="loginError" class="err"></div>
-  </div>
-</section>
-
+<section id="loginScreen" class="login"><div class="login-card"><div class="brand-kicker">Lenbrook Industries · Administration</div><h1>The Lenbrook Files</h1><p>Restricted organizer access. Sign in with an approved administrator account.</p><div class="field"><label for="adminEmail">Email</label><input id="adminEmail" class="input" type="email" autocomplete="username" placeholder="you@lenbrook.com"></div><div class="field"><label for="adminPassword">Password</label><input id="adminPassword" class="input" type="password" autocomplete="current-password" placeholder="Password"></div><button id="loginBtn" class="btn" style="width:100%">Open Admin Dashboard →</button><div id="loginError" class="err"></div></div></section>
 <section id="adminScreen" class="admin-layout hidden">
-  <aside class="sidebar">
-    <div class="side-brand">
-      <div class="brand-kicker">Organizer Console</div>
-      <h2>The Lenbrook Files</h2>
-    </div>
-    <div class="nav">
-      <button class="active" data-view="dashboardView">Dashboard</button>
-      <button data-view="playersView">Players</button>
-      <button data-view="questionsView">Questions</button>
-      <button data-view="reviewView">Review</button>
-    </div>
-    <div class="sidebar-bottom">
-      <div id="adminEmailDisplay" class="user-email"></div>
-      <button id="logoutBtn" class="btn secondary" style="width:100%">Sign Out</button>
-    </div>
-  </aside>
-
-  <main class="content">
-    <section id="dashboardView" class="view active">
-      <div class="topbar"><div><h1>Dashboard</h1><p>Live overview of The Lenbrook Files.</p></div><button class="btn secondary" id="refreshDash">Refresh</button></div>
-      <div class="cards">
-        <div class="stat"><b id="statPlayers">—</b><span>Total players</span></div>
-        <div class="stat"><b id="statSubmitted">—</b><span>Submitted dossiers</span></div>
-        <div class="stat"><b id="statProgress">—</b><span>In progress</span></div>
-        <div class="stat"><b id="statQuestions">—</b><span>Active questions</span></div>
-      </div>
-      <div class="panel">
-        <div class="panel-head"><h3>Recent Players</h3></div>
-        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Status</th><th>Filed</th><th>Started</th><th></th></tr></thead><tbody id="recentPlayers"></tbody></table></div>
-      </div>
-    </section>
-
-    <section id="playersView" class="view">
-      <div class="topbar"><div><h1>Players</h1><p>Open a dossier to inspect the participant's responses.</p></div>
-        <div class="toolbar"><input id="playerSearch" class="search" placeholder="Search player…"><button id="refreshPlayers" class="btn secondary">Refresh</button></div>
-      </div>
-      <div class="panel"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Status</th><th>Filed</th><th>Pending</th><th>Submission ID</th><th></th></tr></thead><tbody id="playersTable"></tbody></table></div></div>
-    </section>
-
-    <section id="questionsView" class="view">
-      <div class="topbar"><div><h1>Questions</h1><p>Edit the live question set without touching Firestore manually.</p></div>
-        <div class="toolbar"><button id="addQuestionBtn" class="btn">+ Add Question</button><button id="refreshQuestions" class="btn secondary">Refresh</button></div>
-      </div>
-      <div class="panel"><div class="table-wrap"><table><thead><tr><th>Order</th><th>Question</th><th>Category</th><th>Active</th><th></th></tr></thead><tbody id="questionsTable"></tbody></table></div></div>
-    </section>
-
-    <section id="reviewView" class="view">
-      <div class="topbar"><div><h1>Answer Review</h1><p>Review submitted responses against the private known-answer list.</p></div><button id="refreshReview" class="btn secondary">Refresh</button></div>
-      <div class="panel">
-        <div class="panel-head"><h3>Review Queue</h3></div>
-        <div id="reviewQueue" class="empty">Admin V1 is connected to the private answer keys. Detailed approve/reject grouping comes in the next pass.</div>
-      </div>
-    </section>
-  </main>
-</section>
-
-<div id="playerDrawer" class="drawer hidden">
-  <div class="drawer-card">
-    <div class="drawer-top"><div><div class="brand-kicker">Participant Dossier</div><h2 id="drawerName">Player</h2></div><button id="closeDrawer" class="btn secondary">Close</button></div>
-    <div id="drawerMeta"></div>
-    <div id="drawerResponses"></div>
-  </div>
+<aside class="sidebar"><div class="side-brand"><div class="brand-kicker">Organizer Console · V2</div><h2>The Lenbrook Files</h2></div><div class="nav"><button class="active" data-view="dashboardView">Dashboard</button><button data-view="playersView">Players</button><button data-view="questionsView">Questions</button><button data-view="reviewView">Review & Scoring</button></div><div class="sidebar-bottom"><div id="adminEmailDisplay" class="user-email"></div><button id="logoutBtn" class="btn secondary" style="width:100%">Sign Out</button></div></aside>
+<main class="content">
+<section id="dashboardView" class="view active"><div class="topbar"><div><h1>Dashboard</h1><p>Live overview of The Lenbrook Files.</p></div><button class="btn secondary" id="refreshDash">Refresh</button></div><div class="cards"><div class="stat"><b id="statPlayers">—</b><span>Total players</span></div><div class="stat"><b id="statSubmitted">—</b><span>Submitted dossiers</span></div><div class="stat"><b id="statProgress">—</b><span>In progress</span></div><div class="stat"><b id="statQuestions">—</b><span>Active questions</span></div><div class="stat"><b id="statScored">—</b><span>Final scores</span></div></div><div class="panel"><div class="panel-head"><h3>Recent Players</h3></div><div class="table-wrap"><table><thead><tr><th>Name</th><th>Status</th><th>Filed</th><th>Score</th><th>Started</th><th></th></tr></thead><tbody id="recentPlayers"></tbody></table></div></div></section>
+<section id="playersView" class="view"><div class="topbar"><div><h1>Players</h1><p>Open a dossier to inspect the participant's responses.</p></div><div class="toolbar"><input id="playerSearch" class="search" placeholder="Search player…"><button id="refreshPlayers" class="btn secondary">Refresh</button></div></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Status</th><th>Filed</th><th>Pending</th><th>Score</th><th>Submission ID</th><th></th></tr></thead><tbody id="playersTable"></tbody></table></div></div></section>
+<section id="questionsView" class="view"><div class="topbar"><div><h1>Questions</h1><p>Manage the live question set and private answer keys.</p></div><div class="toolbar"><button id="bulkQuestionsBtn" class="btn">Bulk Question Manager</button><button id="addQuestionBtn" class="btn secondary">+ Add Question</button><button id="refreshQuestions" class="btn secondary">Refresh</button></div></div><div class="notice"><strong>Bulk update is ready.</strong> The master 30-question set you supplied is preloaded in this dashboard. Open Bulk Question Manager and save all 30 in one operation.</div><div class="panel"><div class="table-wrap"><table><thead><tr><th>Order</th><th>Question</th><th>Category</th><th>Known answers</th><th>Active</th><th></th></tr></thead><tbody id="questionsTable"></tbody></table></div></div></section>
+<section id="reviewView" class="view"><div class="topbar"><div><h1>Review & Scoring</h1><p>Approve new valid names, reject invalid names, and finalize scores.</p></div><div class="toolbar"><button id="finalizeScoresBtn" class="btn">Finalize Scores</button><button id="refreshReview" class="btn secondary">Refresh</button></div></div><div id="reviewNotice" class="notice">Load the review queue to compare submitted answers with the private known-answer list.</div><div class="review-summary"><div class="review-card"><b id="reviewSubmitted">0</b><span>Submitted dossiers</span></div><div class="review-card"><b id="reviewUnknown">0</b><span>Unknown answer groups</span></div><div class="review-card"><b id="reviewKnown">0</b><span>Known answer hits</span></div><div class="review-card"><b id="reviewFinalized">0</b><span>Finalized scores</span></div></div><div class="panel"><div class="panel-head"><div><h3>Unknown Answer Review</h3><p>Grouped by question and normalized submitted name.</p></div></div><div id="reviewQueue" class="empty">Press Refresh to build the queue.</div></div><div class="panel"><div class="panel-head"><div><h3>Scoreboard Preview</h3><p>Scores are computed from currently approved known answers. Finalized scores are written to player records.</p></div></div><div class="table-wrap"><table class="score-table"><thead><tr><th>Player</th><th>Status</th><th>Current Score</th><th>Final Score</th><th>Submission ID</th></tr></thead><tbody id="scoreTable"></tbody></table></div></div></section>
+</main></section>
+<div id="playerDrawer" class="drawer hidden"><div class="drawer-card"><div class="drawer-top"><div><div class="brand-kicker">Participant Dossier</div><h2 id="drawerName">Player</h2></div><button id="closeDrawer" class="btn secondary">Close</button></div><div id="drawerMeta"></div><div id="drawerResponses"></div></div></div>
+<div id="questionModal" class="modal hidden"><div class="modal-card"><h2 id="questionModalTitle">Edit Question</h2><div class="field"><label>Question</label><textarea id="qText" class="input" rows="4"></textarea></div><div class="edit-grid"><div class="field"><label>Category</label><input id="qCategory" class="input" value="General"></div><div class="field"><label>Order</label><input id="qOrder" class="input" type="number" min="1"></div><div class="field"><label>Active</label><select id="qActive" class="input"><option value="true">Yes</option><option value="false">No</option></select></div></div><div class="field"><label>Known valid answers (one per line)</label><textarea id="qAnswers" class="input" rows="6" placeholder="Person One&#10;Person Two"></textarea></div><div id="qError" class="err"></div><div class="modal-actions"><button id="cancelQ" class="btn secondary">Cancel</button><button id="saveQ" class="btn">Save Question</button></div></div></div>
+<div id="bulkModal" class="modal hidden"><div class="modal-card wide"><h2>Bulk Question Manager</h2><p style="color:#6d6c65;line-height:1.55">The 30-question master set below is preloaded from the list you supplied. Edit anything you want, then save all questions and private answer keys together.</p><div class="notice warn" style="color:#5c513d;background:#efe5cd;border-color:#dac7a1"><strong style="color:#493e2d">Save All 30</strong> overwrites <code>q001</code> through <code>q030</code>. Existing player submissions are not deleted.</div><div class="bulk-head"><div>#</div><div>Question</div><div>Known valid answers — one per line</div></div><div id="bulkGrid" class="bulk-grid"></div><div id="bulkMessage" class="err"></div><div class="modal-actions"><button id="loadCurrentBulk" class="btn secondary">Load Current Firestore Set</button><button id="resetMasterBulk" class="btn secondary">Reset to Supplied Master List</button><button id="cancelBulk" class="btn secondary">Cancel</button><button id="saveBulk" class="btn">Save All 30</button></div></div></div>
 </div>
-
-<div id="questionModal" class="modal hidden">
-  <div class="modal-card">
-    <h2 id="questionModalTitle">Edit Question</h2>
-    <div class="field"><label>Question</label><textarea id="qText" class="input" rows="4"></textarea></div>
-    <div class="edit-grid">
-      <div class="field"><label>Category</label><input id="qCategory" class="input" value="General"></div>
-      <div class="field"><label>Order</label><input id="qOrder" class="input" type="number" min="1"></div>
-      <div class="field"><label>Active</label><select id="qActive" class="input"><option value="true">Yes</option><option value="false">No</option></select></div>
-    </div>
-    <div class="field"><label>Known valid answers (one per line)</label><textarea id="qAnswers" class="input" rows="6" placeholder="Person One&#10;Person Two"></textarea></div>
-    <div id="qError" class="err"></div>
-    <div class="modal-actions"><button id="cancelQ" class="btn secondary">Cancel</button><button id="saveQ" class="btn">Save Question</button></div>
-  </div>
-</div>
-
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyBaWX8m5Y6WpX5sJjHzp7VlxfPZQKCsNrU",
-  authDomain: "lenbrook-files.firebaseapp.com",
-  projectId: "lenbrook-files",
-  storageBucket: "lenbrook-files.firebasestorage.app",
-  messagingSenderId: "590853900657",
-  appId: "1:590853900657:web:160d40222e624c711a0ed0",
-  measurementId: "G-11GQ571TKT"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth=firebase.auth();
-const db=firebase.firestore();
-const $=id=>document.getElementById(id);
-let playersCache=[], questionsCache=[], editingQuestionId=null;
-
-function fmtTime(ts){
-  if(!ts) return '—';
-  try{return ts.toDate().toLocaleString([], {dateStyle:'medium',timeStyle:'short'});}catch{return '—'}
-}
+const firebaseConfig={apiKey:"AIzaSyBaWX8m5Y6WpX5sJjHzp7VlxfPZQKCsNrU",authDomain:"lenbrook-files.firebaseapp.com",projectId:"lenbrook-files",storageBucket:"lenbrook-files.firebasestorage.app",messagingSenderId:"590853900657",appId:"1:590853900657:web:160d40222e624c711a0ed0",measurementId:"G-11GQ571TKT"};
+firebase.initializeApp(firebaseConfig);const auth=firebase.auth();const db=firebase.firestore();const $=id=>document.getElementById(id);let playersCache=[],questionsCache=[],answerKeysCache=new Map(),editingQuestionId=null,lastReview=null;
+const MASTER_QUESTIONS=[
+["Who has coached kids soccer?",["Paul Huntington","Richard Fleming","Scott Wicks"]],
+["Who has a new puppy named Juno?",["Debbie Montgomery"]],
+["What employee has been at Lenbrook the longest?",["Mary Beckles-Boyce"]],
+["Who is currently writing a sci-fi/adventure novel?",["Amin Mashayekhi"]],
+["Who loves to cook and supply Empenadas/Shanghai rolls for their colleague's families/friends?",["Lee Viernes"]],
+["Who traveled to and played organized soccer in Brazil?",["Spencer Crowe"]],
+["Who has travelled the furthest to be here today?",["Andrew Nolan"]],
+["This person can recite the alphabet backwards in under 30 seconds",["Julie Jones"]],
+["This person traveled to South Africa to get married?",["Alysa Knoetze"]],
+["Who has owned their own horse?",["Hailey Stroud","Stephanie Irwin","John Banks","Agata Mossop"]],
+["This person was the runner up for 2025 Lenbrook's Got Talent",["Suzie Wu"]],
+["Who's picture was used in an Ontario elementary school math textbook?",["June Ip"]],
+["This person has 70 rose bushes on their property",["Ross Eberlin"]],
+["Name 2 people who worked at Lenbrook on Bellamy Road",["Gord Simmonds","Joan Wideman","Paul Huntington","Doug Campbell","Dennis Hill","Mary Beckles-Boyce","Paul Barton","Mark Stone","Bob Vander Slagt"]],
+["This person is a licensed pilot",["Paul Huntington"]],
+["Name a recipient who is receiving their 10 year tenure award this year?",["Aaron Morris","David Cain","Darien Roberts","Andrew Haines"]],
+["Who's been/going to be a member of a 2026 wedding party? (not a bride/groom)",["Jeremy Flynn","Kass King","Nat Eubank"]],
+["Who is performing a wedding ceremony in the next month?",["Jackie Rodgers","Matt Simmonds"]],
+["Who has built/building 2 homes from scratch?",["Deanna Vincent","Stephanie Irwin"]],
+["Who was born in Guyana?",["Mahendra Shivdarsan","Omar Wajidally"]],
+["Who is expecting a baby boy in October?",["Jermaine Quayson"]],
+["Who is obsessed with detailing cars all year round and has their basement set up like a wash bay?",["Bob Moran"]],
+["This person won the NHL Bracket Challenge?",["Hailey Stroud"]],
+["Who is a triplet?",["Josh Sutherland","Stephanie Irwin"]],
+["Who immigrated to Canada from the UK",["David Cain","Taresh Vadgama","Debbie Montgomery","Gregg Hatton","Ruth Muir","Julie Jones"]],
+["Who's regular diet consists of chicken fingers, french fries and chocolate?",["David Cain"]],
+["Who is renowned for having the loudest sneeze in the office",["Karen Pritchard"]],
+["Which 2 Lenbrook employees found out they worked together as teenagers at the same place?",["Heather White","Jackie Rodgers"]],
+["This person creates computer animation kids television shows (eg Paw Patrol)?",["Sebastian Yusay"]],
+["Who loves to consistently talk about and cook with cast iron in the lunchroom?",["Torben Sonderskov"]]
+].map((x,i)=>({id:`q${String(i+1).padStart(3,'0')}`,order:i+1,text:x[0],knownAnswers:x[1],category:'General',active:true}));
+function fmtTime(ts){if(!ts)return'—';try{return ts.toDate().toLocaleString([],{dateStyle:'medium',timeStyle:'short'})}catch{return'—'}}
 function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function statusBadge(status){return `<span class="status ${status}">${status==='submitted'?'Submitted':'In progress'}</span>`}
-
-async function isAdmin(user){
-  if(!user) return false;
-  const snap=await db.collection('admins').doc(user.uid).get();
-  return snap.exists && snap.data().active !== false;
-}
-
-auth.onAuthStateChanged(async user=>{
-  if(!user){
-    $('loginScreen').classList.remove('hidden');
-    $('adminScreen').classList.add('hidden');
-    return;
-  }
-  try{
-    if(!(await isAdmin(user))){
-      await auth.signOut();
-      $('loginError').textContent='This account is not authorized as an administrator.';
-      return;
-    }
-    $('adminEmailDisplay').textContent=user.email||user.uid;
-    $('loginScreen').classList.add('hidden');
-    $('adminScreen').classList.remove('hidden');
-    await loadAll();
-  }catch(err){
-    console.error(err);
-    $('loginError').textContent='Could not verify administrator access.';
-  }
-});
-
-$('loginBtn').addEventListener('click',async()=>{
-  $('loginError').textContent='';
-  const email=$('adminEmail').value.trim(), password=$('adminPassword').value;
-  if(!email||!password){$('loginError').textContent='Enter your email and password.';return}
-  $('loginBtn').disabled=true;$('loginBtn').textContent='Signing in…';
-  try{await auth.signInWithEmailAndPassword(email,password)}
-  catch(err){console.error(err);$('loginError').textContent='Sign-in failed. Check your account and password.'}
-  finally{$('loginBtn').disabled=false;$('loginBtn').textContent='Open Admin Dashboard →'}
-});
-$('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});
-$('logoutBtn').addEventListener('click',()=>auth.signOut());
-
-document.querySelectorAll('.nav button').forEach(btn=>btn.addEventListener('click',()=>{
-  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b===btn));
-  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===btn.dataset.view));
-}));
-
-async function loadPlayers(){
-  const snap=await db.collection('players').get();
-  playersCache=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{
-    const at=a.updatedAt?.seconds||0, bt=b.updatedAt?.seconds||0; return bt-at;
-  });
-  renderPlayers();
-  renderRecentPlayers();
-}
-async function loadQuestions(){
-  const snap=await db.collection('questions').get();
-  questionsCache=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||9999)-(b.order||9999));
-  renderQuestions();
-}
-async function loadDashboard(){
-  $('statPlayers').textContent=playersCache.length;
-  $('statSubmitted').textContent=playersCache.filter(p=>p.status==='submitted').length;
-  $('statProgress').textContent=playersCache.filter(p=>p.status!=='submitted').length;
-  $('statQuestions').textContent=questionsCache.filter(q=>q.active!==false).length;
-}
+function normalizeName(v){return String(v||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z0-9' -]/g,' ').replace(/\s+/g,' ').trim()}
+function parseCandidates(v){return String(v||'').split(/\r?\n|,|;|\s+&\s+|\s+and\s+/i).map(x=>x.trim().replace(/^[.\-–—:]+|[.\-–—:]+$/g,'').trim()).filter(Boolean)}
+function uniqueByNormalized(arr){const m=new Map();for(const x of arr||[]){const n=normalizeName(x);if(n&&!m.has(n))m.set(n,String(x).trim())}return[...m.values()]}
+async function isAdmin(user){if(!user)return false;const snap=await db.collection('admins').doc(user.uid).get();return snap.exists&&snap.data().active!==false}
+auth.onAuthStateChanged(async user=>{if(!user){$('loginScreen').classList.remove('hidden');$('adminScreen').classList.add('hidden');return}try{if(!(await isAdmin(user))){await auth.signOut();$('loginError').textContent='This account is not authorized as an administrator.';return}$('adminEmailDisplay').textContent=user.email||user.uid;$('loginScreen').classList.add('hidden');$('adminScreen').classList.remove('hidden');await loadAll()}catch(err){console.error(err);$('loginError').textContent='Could not verify administrator access.'}});
+$('loginBtn').addEventListener('click',async()=>{$('loginError').textContent='';const email=$('adminEmail').value.trim(),password=$('adminPassword').value;if(!email||!password){$('loginError').textContent='Enter your email and password.';return}$('loginBtn').disabled=true;$('loginBtn').textContent='Signing in…';try{await auth.signInWithEmailAndPassword(email,password)}catch(err){console.error(err);$('loginError').textContent='Sign-in failed. Check your account and password.'}finally{$('loginBtn').disabled=false;$('loginBtn').textContent='Open Admin Dashboard →'}});$('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});$('logoutBtn').addEventListener('click',()=>auth.signOut());
+document.querySelectorAll('.nav button').forEach(btn=>btn.addEventListener('click',async()=>{document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===btn.dataset.view));if(btn.dataset.view==='reviewView')await loadReview()}));
+async function loadPlayers(){const snap=await db.collection('players').get();playersCache=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.updatedAt?.seconds||0)-(a.updatedAt?.seconds||0));renderPlayers();renderRecentPlayers()}
+async function loadQuestions(){const [qSnap,aSnap]=await Promise.all([db.collection('questions').get(),db.collection('answerKeys').get()]);questionsCache=qSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||9999)-(b.order||9999));answerKeysCache=new Map(aSnap.docs.map(d=>[d.id,{id:d.id,...d.data()}]));renderQuestions()}
+async function loadDashboard(){$('statPlayers').textContent=playersCache.length;$('statSubmitted').textContent=playersCache.filter(p=>p.status==='submitted').length;$('statProgress').textContent=playersCache.filter(p=>p.status!=='submitted').length;$('statQuestions').textContent=questionsCache.filter(q=>q.active!==false).length;$('statScored').textContent=playersCache.filter(p=>Number.isFinite(Number(p.score))).length}
 async function loadAll(){await Promise.all([loadPlayers(),loadQuestions()]);await loadDashboard()}
-
-function renderRecentPlayers(){
-  $('recentPlayers').innerHTML=playersCache.slice(0,8).map(p=>`<tr>
-    <td>${esc(p.name||'Unnamed')}</td><td>${statusBadge(p.status)}</td><td>${p.filedCount||0}</td><td>${fmtTime(p.startedAt)}</td>
-    <td><button class="btn small secondary" onclick="openPlayer('${p.id}')">Open</button></td></tr>`).join('')||'<tr><td colspan="5">No players yet.</td></tr>';
-}
-function renderPlayers(){
-  const q=$('playerSearch').value.trim().toLowerCase();
-  const rows=playersCache.filter(p=>!q||String(p.name||'').toLowerCase().includes(q));
-  $('playersTable').innerHTML=rows.map(p=>`<tr>
-    <td>${esc(p.name||'Unnamed')}</td><td>${statusBadge(p.status)}</td><td>${p.filedCount||0}</td><td>${p.pendingCount||0}</td>
-    <td>${esc(p.submissionId||'—')}</td><td><button class="btn small secondary" onclick="openPlayer('${p.id}')">Open Dossier</button></td></tr>`).join('')||'<tr><td colspan="6">No players found.</td></tr>';
-}
-$('playerSearch').addEventListener('input',renderPlayers);
-
-window.openPlayer=async id=>{
-  const p=playersCache.find(x=>x.id===id); if(!p)return;
-  $('drawerName').textContent=p.name||'Unnamed Player';
-  $('drawerMeta').innerHTML=`<p>${statusBadge(p.status)} &nbsp; ${esc(p.submissionId||'')}</p>`;
-  $('drawerResponses').innerHTML='<div class="empty">Loading responses…</div>';
-  $('playerDrawer').classList.remove('hidden');
-  const snap=await db.collection('players').doc(id).collection('responses').get();
-  const responses=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||9999)-(b.order||9999));
-  $('drawerResponses').innerHTML=responses.map(r=>`<div class="response">
-    <div class="num">File ${String(r.order||'').padStart(2,'0')} · ${esc(r.status||'')}</div>
-    <div class="question">${esc(r.questionText||r.questionId||r.id)}</div>
-    <div class="answer">${r.answer?esc(r.answer):'<em>No answer filed</em>'}</div>
-  </div>`).join('')||'<div class="empty">No saved responses.</div>';
-};
-$('closeDrawer').addEventListener('click',()=>$('playerDrawer').classList.add('hidden'));
-
-function renderQuestions(){
-  $('questionsTable').innerHTML=questionsCache.map(q=>`<tr>
-    <td>${q.order??'—'}</td><td class="qtext">${esc(q.text||'')}</td><td>${esc(q.category||'General')}</td><td>${q.active===false?'No':'Yes'}</td>
-    <td><button class="btn small secondary" onclick="editQuestion('${q.id}')">Edit</button></td></tr>`).join('');
-}
-
-window.editQuestion=async id=>{
-  const q=questionsCache.find(x=>x.id===id);if(!q)return;
-  editingQuestionId=id;
-  $('questionModalTitle').textContent='Edit Question';
-  $('qText').value=q.text||'';
-  $('qCategory').value=q.category||'General';
-  $('qOrder').value=q.order||'';
-  $('qActive').value=String(q.active!==false);
-  $('qAnswers').value='';
-  $('qError').textContent='';
-  $('questionModal').classList.remove('hidden');
-  try{
-    const a=await db.collection('answerKeys').doc(id).get();
-    if(a.exists)$('qAnswers').value=(a.data().knownAnswers||[]).join('\n');
-  }catch(err){console.error(err);$('qError').textContent='Could not load private answer key.'}
-};
-
-$('addQuestionBtn').addEventListener('click',()=>{
-  editingQuestionId=null;
-  $('questionModalTitle').textContent='Add Question';
-  $('qText').value='';$('qCategory').value='General';
-  $('qOrder').value=(questionsCache.reduce((m,q)=>Math.max(m,Number(q.order)||0),0)+1);
-  $('qActive').value='true';$('qAnswers').value='';$('qError').textContent='';
-  $('questionModal').classList.remove('hidden');
-});
-$('cancelQ').addEventListener('click',()=>$('questionModal').classList.add('hidden'));
-
-$('saveQ').addEventListener('click',async()=>{
-  const text=$('qText').value.trim(), category=$('qCategory').value.trim()||'General';
-  const order=Number($('qOrder').value), active=$('qActive').value==='true';
-  const knownAnswers=$('qAnswers').value.split('\n').map(x=>x.trim()).filter(Boolean);
-  if(!text||!Number.isFinite(order)||order<1){$('qError').textContent='Question text and a valid order are required.';return}
-  $('saveQ').disabled=true;$('saveQ').textContent='Saving…';$('qError').textContent='';
-  try{
-    const id=editingQuestionId||`q${String(order).padStart(3,'0')}`;
-    const batch=db.batch();
-    batch.set(db.collection('questions').doc(id),{text,category,order,active},{merge:true});
-    batch.set(db.collection('answerKeys').doc(id),{knownAnswers,acceptOtherNames:true},{merge:true});
-    await batch.commit();
-    $('questionModal').classList.add('hidden');
-    await loadQuestions();await loadDashboard();
-  }catch(err){console.error(err);$('qError').textContent='Could not save. Check admin permissions and try again.'}
-  finally{$('saveQ').disabled=false;$('saveQ').textContent='Save Question'}
-});
-
-$('refreshDash').addEventListener('click',loadAll);
-$('refreshPlayers').addEventListener('click',loadPlayers);
-$('refreshQuestions').addEventListener('click',loadQuestions);
-$('refreshReview').addEventListener('click',()=>{});
-
+function scoreText(p){return Number.isFinite(Number(p.score))?`${p.score}/${p.scoreOutOf||questionsCache.filter(q=>q.active!==false).length}`:'—'}
+function renderRecentPlayers(){$('recentPlayers').innerHTML=playersCache.slice(0,8).map(p=>`<tr><td>${esc(p.name||'Unnamed')}</td><td>${statusBadge(p.status)}</td><td>${p.filedCount||0}</td><td>${scoreText(p)}</td><td>${fmtTime(p.startedAt)}</td><td><button class="btn small secondary" onclick="openPlayer('${p.id}')">Open</button></td></tr>`).join('')||'<tr><td colspan="6">No players yet.</td></tr>'}
+function renderPlayers(){const q=$('playerSearch').value.trim().toLowerCase();const rows=playersCache.filter(p=>!q||String(p.name||'').toLowerCase().includes(q));$('playersTable').innerHTML=rows.map(p=>`<tr><td>${esc(p.name||'Unnamed')}</td><td>${statusBadge(p.status)}</td><td>${p.filedCount||0}</td><td>${p.pendingCount||0}</td><td>${scoreText(p)}</td><td>${esc(p.submissionId||'—')}</td><td><button class="btn small secondary" onclick="openPlayer('${p.id}')">Open Dossier</button></td></tr>`).join('')||'<tr><td colspan="7">No players found.</td></tr>'}$('playerSearch').addEventListener('input',renderPlayers);
+window.openPlayer=async id=>{const p=playersCache.find(x=>x.id===id);if(!p)return;$('drawerName').textContent=p.name||'Unnamed Player';$('drawerMeta').innerHTML=`<p>${statusBadge(p.status)} &nbsp; ${esc(p.submissionId||'')} &nbsp; ${Number.isFinite(Number(p.score))?`<span class="status scored">Score ${p.score}/${p.scoreOutOf||'?'}</span>`:''}</p>`;$('drawerResponses').innerHTML='<div class="empty">Loading responses…</div>';$('playerDrawer').classList.remove('hidden');const snap=await db.collection('players').doc(id).collection('responses').get();const responses=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||9999)-(b.order||9999));$('drawerResponses').innerHTML=responses.map(r=>`<div class="response"><div class="num">File ${String(r.order||'').padStart(2,'0')} · ${esc(r.status||'')}</div><div class="question">${esc(r.questionText||r.questionId||r.id)}</div><div class="answer">${r.answer?esc(r.answer):'<em>No answer filed</em>'}</div></div>`).join('')||'<div class="empty">No saved responses.</div>'};$('closeDrawer').addEventListener('click',()=>$('playerDrawer').classList.add('hidden'));
+function renderQuestions(){$('questionsTable').innerHTML=questionsCache.map(q=>{const key=answerKeysCache.get(q.id)||{};return`<tr><td>${q.order??'—'}</td><td class="qtext">${esc(q.text||'')}</td><td>${esc(q.category||'General')}</td><td>${(key.knownAnswers||[]).length}</td><td>${q.active===false?'No':'Yes'}</td><td><button class="btn small secondary" onclick="editQuestion('${q.id}')">Edit</button></td></tr>`}).join('')}
+window.editQuestion=async id=>{const q=questionsCache.find(x=>x.id===id);if(!q)return;editingQuestionId=id;$('questionModalTitle').textContent='Edit Question';$('qText').value=q.text||'';$('qCategory').value=q.category||'General';$('qOrder').value=q.order||'';$('qActive').value=String(q.active!==false);$('qAnswers').value=(answerKeysCache.get(id)?.knownAnswers||[]).join('\n');$('qError').textContent='';$('questionModal').classList.remove('hidden')};
+$('addQuestionBtn').addEventListener('click',()=>{editingQuestionId=null;$('questionModalTitle').textContent='Add Question';$('qText').value='';$('qCategory').value='General';$('qOrder').value=questionsCache.reduce((m,q)=>Math.max(m,Number(q.order)||0),0)+1;$('qActive').value='true';$('qAnswers').value='';$('qError').textContent='';$('questionModal').classList.remove('hidden')});$('cancelQ').addEventListener('click',()=>$('questionModal').classList.add('hidden'));
+$('saveQ').addEventListener('click',async()=>{const text=$('qText').value.trim(),category=$('qCategory').value.trim()||'General',order=Number($('qOrder').value),active=$('qActive').value==='true',knownAnswers=uniqueByNormalized($('qAnswers').value.split('\n').map(x=>x.trim()).filter(Boolean));if(!text||!Number.isFinite(order)||order<1){$('qError').textContent='Question text and a valid order are required.';return}$('saveQ').disabled=true;$('saveQ').textContent='Saving…';$('qError').textContent='';try{const qRef=editingQuestionId?db.collection('questions').doc(editingQuestionId):db.collection('questions').doc();const id=qRef.id;const batch=db.batch();batch.set(qRef,{text,category,order,active},{merge:true});batch.set(db.collection('answerKeys').doc(id),{knownAnswers,acceptOtherNames:true},{merge:true});await batch.commit();$('questionModal').classList.add('hidden');await loadQuestions();await loadDashboard()}catch(err){console.error(err);$('qError').textContent='Could not save. Check admin permissions and try again.'}finally{$('saveQ').disabled=false;$('saveQ').textContent='Save Question'}});
+function buildBulkRows(data){$('bulkGrid').innerHTML=data.map((q,i)=>`<div class="bulk-row" data-id="${esc(q.id)}"><div class="bulk-num">Q${String(i+1).padStart(2,'0')}</div><textarea class="input bulk-text" rows="3">${esc(q.text)}</textarea><textarea class="input bulk-answers" rows="3">${esc((q.knownAnswers||[]).join('\n'))}</textarea></div>`).join('')}
+$('bulkQuestionsBtn').addEventListener('click',()=>{buildBulkRows(MASTER_QUESTIONS);$('bulkMessage').textContent='';$('bulkModal').classList.remove('hidden')});$('cancelBulk').addEventListener('click',()=>$('bulkModal').classList.add('hidden'));$('resetMasterBulk').addEventListener('click',()=>{buildBulkRows(MASTER_QUESTIONS);$('bulkMessage').textContent='Reset to the supplied master list.'});
+$('loadCurrentBulk').addEventListener('click',()=>{const data=[];for(let i=1;i<=30;i++){const id=`q${String(i).padStart(3,'0')}`,q=questionsCache.find(x=>x.id===id),key=answerKeysCache.get(id)||{};data.push({id,order:i,text:q?.text||MASTER_QUESTIONS[i-1].text,knownAnswers:key.knownAnswers||MASTER_QUESTIONS[i-1].knownAnswers})}buildBulkRows(data);$('bulkMessage').textContent='Loaded q001–q030 from Firestore where available.'});
+$('saveBulk').addEventListener('click',async()=>{const rows=[...document.querySelectorAll('#bulkGrid .bulk-row')];if(rows.length!==30){$('bulkMessage').textContent='Expected 30 questions.';return}const payload=rows.map((row,i)=>({id:`q${String(i+1).padStart(3,'0')}`,order:i+1,text:row.querySelector('.bulk-text').value.trim(),knownAnswers:uniqueByNormalized(row.querySelector('.bulk-answers').value.split('\n').map(x=>x.trim()).filter(Boolean))}));const invalid=payload.find(x=>!x.text||!x.knownAnswers.length);if(invalid){$('bulkMessage').textContent=`Question ${invalid.order} needs question text and at least one known answer.`;return}if(!confirm('Save all 30 questions and private answer keys to Firestore? Existing player submissions will stay intact.'))return;$('saveBulk').disabled=true;$('saveBulk').textContent='Saving 30…';$('bulkMessage').textContent='';try{const batch=db.batch();for(const q of payload){batch.set(db.collection('questions').doc(q.id),{text:q.text,category:'General',order:q.order,active:true},{merge:true});batch.set(db.collection('answerKeys').doc(q.id),{knownAnswers:q.knownAnswers,acceptOtherNames:true},{merge:true})}await batch.commit();$('bulkMessage').innerHTML='<span class="ok">All 30 questions and answer keys were saved successfully.</span>';await loadQuestions();await loadDashboard()}catch(err){console.error(err);$('bulkMessage').textContent='Bulk save failed. Check permissions and try again.'}finally{$('saveBulk').disabled=false;$('saveBulk').textContent='Save All 30'}});
+async function fetchResponsesForPlayers(players){const out=new Map();await Promise.all(players.map(async p=>{const snap=await db.collection('players').doc(p.id).collection('responses').get();out.set(p.id,snap.docs.map(d=>({id:d.id,...d.data()})))}));return out}
+function keySets(questionId){const key=answerKeysCache.get(questionId)||{};return{known:new Set((key.knownAnswers||[]).map(normalizeName).filter(Boolean)),rejected:new Set((key.rejectedAnswers||[]).map(normalizeName).filter(Boolean))}}
+function evaluateResponse(r){if(!r||r.status!=='filed'||!String(r.answer||'').trim())return{correct:false,candidates:[]};const candidates=parseCandidates(r.answer);const sets=keySets(r.questionId||r.id);return{correct:candidates.some(c=>sets.known.has(normalizeName(c))),candidates,sets}}
+async function loadReview(){try{$('reviewQueue').innerHTML='<div class="empty">Building review queue…</div>';await loadAll();const submitted=playersCache.filter(p=>p.status==='submitted');const responsesByPlayer=await fetchResponsesForPlayers(submitted);const groups=new Map();let knownHits=0;const scorePreview=[];for(const p of submitted){let score=0;const rs=responsesByPlayer.get(p.id)||[];for(const r of rs){const ev=evaluateResponse(r);if(ev.correct){score++;knownHits++}if(r.status!=='filed')continue;for(const c of ev.candidates){const n=normalizeName(c);if(!n||ev.sets.known.has(n)||ev.sets.rejected.has(n))continue;const qid=r.questionId||r.id,key=`${qid}||${n}`;if(!groups.has(key))groups.set(key,{questionId:qid,normalized:n,display:c,players:[],answers:[],order:r.order||9999,questionText:r.questionText||questionsCache.find(q=>q.id===qid)?.text||qid});const g=groups.get(key);g.players.push(p.name||'Unnamed');g.answers.push(r.answer)}}scorePreview.push({player:p,score})}
+const pending=[...groups.values()].sort((a,b)=>a.order-b.order||a.display.localeCompare(b.display));lastReview={submitted,responsesByPlayer,pending,scorePreview};$('reviewSubmitted').textContent=submitted.length;$('reviewUnknown').textContent=pending.length;$('reviewKnown').textContent=knownHits;$('reviewFinalized').textContent=submitted.filter(p=>Number.isFinite(Number(p.score))).length;$('reviewNotice').className='notice'+(pending.length?' warn':'');$('reviewNotice').innerHTML=pending.length?`<strong>${pending.length} unknown answer group${pending.length===1?'':'s'} need review.</strong> Finalize Scores will be available after every unknown name is approved or rejected.`:`<strong>Review queue is clear.</strong> All submitted names are either known-valid or rejected. You can finalize scores.`;$('finalizeScoresBtn').disabled=pending.length>0;renderReviewQueue(pending);renderScoreTable(scorePreview)}catch(err){console.error(err);$('reviewQueue').innerHTML='<div class="empty">Could not build review queue. Check admin permissions and try again.</div>'}}
+function renderReviewQueue(groups){if(!groups.length){$('reviewQueue').innerHTML='<div class="empty">No unknown submitted names are waiting for review.</div>';return}$('reviewQueue').innerHTML=groups.map((g,i)=>`<div class="review-group"><div class="review-top"><div><div class="brand-kicker">Question ${String(g.order).padStart(2,'0')}</div><div class="review-question">${esc(g.questionText)}</div><div class="candidate">“${esc(g.display)}”</div><div class="meta">Submitted ${g.players.length} time${g.players.length===1?'':'s'}.</div><div class="chips">${[...new Set(g.players)].map(p=>`<span class="chip">${esc(p)}</span>`).join('')}</div></div><div class="review-actions-inline"><button class="btn small" onclick="approveCandidate(${i})">Approve</button><button class="btn small danger" onclick="rejectCandidate(${i})">Reject</button></div></div></div>`).join('')}
+function renderScoreTable(preview){$('scoreTable').innerHTML=preview.sort((a,b)=>b.score-a.score||String(a.player.name).localeCompare(String(b.player.name))).map(x=>`<tr><td>${esc(x.player.name||'Unnamed')}</td><td><span class="tag ${Number.isFinite(Number(x.player.score))?'final':'pending'}">${Number.isFinite(Number(x.player.score))?'Finalized':'Preview'}</span></td><td class="score-num">${x.score}/${questionsCache.filter(q=>q.active!==false).length}</td><td>${Number.isFinite(Number(x.player.score))?`${x.player.score}/${x.player.scoreOutOf||questionsCache.filter(q=>q.active!==false).length}`:'—'}</td><td>${esc(x.player.submissionId||'—')}</td></tr>`).join('')||'<tr><td colspan="5">No submitted players.</td></tr>'}
+async function updateDecision(group,approve){const ref=db.collection('answerKeys').doc(group.questionId);await db.runTransaction(async tx=>{const snap=await tx.get(ref);const data=snap.exists?snap.data():{};let known=uniqueByNormalized(data.knownAnswers||[]),rejected=uniqueByNormalized(data.rejectedAnswers||[]);const n=group.normalized;if(approve){if(!known.some(x=>normalizeName(x)===n))known.push(group.display);rejected=rejected.filter(x=>normalizeName(x)!==n)}else{if(!rejected.some(x=>normalizeName(x)===n))rejected.push(group.display)}tx.set(ref,{knownAnswers:known,rejectedAnswers:rejected,acceptOtherNames:true},{merge:true})})}
+window.approveCandidate=async i=>{const g=lastReview?.pending?.[i];if(!g)return;try{await updateDecision(g,true);await loadReview()}catch(err){console.error(err);alert('Could not approve this answer.')}};window.rejectCandidate=async i=>{const g=lastReview?.pending?.[i];if(!g)return;try{await updateDecision(g,false);await loadReview()}catch(err){console.error(err);alert('Could not reject this answer.')}};
+$('finalizeScoresBtn').addEventListener('click',async()=>{if(!lastReview)await loadReview();if(lastReview?.pending?.length){alert('Review every unknown answer before finalizing scores.');return}if(!confirm('Finalize scores for all currently submitted dossiers?'))return;$('finalizeScoresBtn').disabled=true;$('finalizeScoresBtn').textContent='Finalizing…';try{const activeCount=questionsCache.filter(q=>q.active!==false).length;let batch=db.batch(),ops=0;for(const x of lastReview.scorePreview){batch.set(db.collection('players').doc(x.player.id),{score:x.score,scoreOutOf:activeCount,scoredAt:firebase.firestore.FieldValue.serverTimestamp(),reviewComplete:true},{merge:true});ops++;if(ops===450){await batch.commit();batch=db.batch();ops=0}}if(ops)await batch.commit();await loadReview();await loadPlayers();await loadDashboard();alert('Scores finalized successfully.')}catch(err){console.error(err);alert('Could not finalize scores.')}finally{$('finalizeScoresBtn').textContent='Finalize Scores';if(lastReview)$('finalizeScoresBtn').disabled=lastReview.pending.length>0}});
+$('refreshDash').addEventListener('click',loadAll);$('refreshPlayers').addEventListener('click',loadPlayers);$('refreshQuestions').addEventListener('click',loadQuestions);$('refreshReview').addEventListener('click',loadReview);
 </script>
-</body>
-</html>
+</body></html>
