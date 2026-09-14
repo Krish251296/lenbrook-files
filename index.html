@@ -1305,6 +1305,51 @@ body{font-family:var(--body)}
   .clue{font-size:21px}
 }
 
+
+/* Returning-player resume panel */
+.resume-panel{
+  display:none;
+  margin-top:18px;
+  padding:18px;
+  border:1px solid rgba(115,87,47,.25);
+  border-radius:12px;
+  background:rgba(255,250,236,.72);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);
+}
+.resume-panel.active{display:block}
+.resume-eyebrow{
+  font:700 9px 'Courier Prime',monospace;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#806a43;
+  margin-bottom:6px;
+}
+.resume-name{
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:23px;
+  font-weight:700;
+  color:#2d261b;
+  margin-bottom:5px;
+}
+.resume-copy{
+  margin:0 0 14px;
+  font-size:12px;
+  line-height:1.5;
+  color:#665a47;
+}
+.resume-actions{
+  display:flex;
+  gap:9px;
+  flex-wrap:wrap;
+}
+.resume-actions .btn{flex:1 1 220px}
+.resume-actions .btn.ghost{flex:0 1 auto}
+@media(max-width:520px){
+  .resume-panel{padding:15px}
+  .resume-name{font-size:21px}
+  .resume-actions .btn{width:100%;flex-basis:100%}
+}
+
 </style>
 </head>
 <body>
@@ -1344,10 +1389,21 @@ body{font-family:var(--body)}
           </div>
 
           <div class="welcome-form">
-            <div class="intro-actions">
+            <div id="newPlayerEntry" class="intro-actions">
               <button id="enterDossierBtn" class="btn" type="button">Enter the Dossier →</button>
             </div>
-            <div class="security-line"><span class="security-dot"></span> Live question set · Responses remain sealed during play</div>
+
+            <div id="returningPanel" class="resume-panel" aria-live="polite">
+              <div class="resume-eyebrow">Existing dossier detected</div>
+              <div id="returningName" class="resume-name">Welcome back</div>
+              <p id="returningCopy" class="resume-copy">Your saved case files are ready to continue.</p>
+              <div class="resume-actions">
+                <button id="resumeDossierBtn" class="btn" type="button">Resume Dossier →</button>
+                <button id="differentPlayerBtn" class="btn ghost" type="button">Not You?</button>
+              </div>
+            </div>
+
+            <div id="welcomeStatus" class="security-line"><span class="security-dot"></span> Checking this browser for a saved dossier…</div>
           </div>
         </div>
       </div>
@@ -1379,7 +1435,7 @@ body{font-family:var(--body)}
             <div class="intro-actions">
               <button id="startBtn" class="btn" type="button">Open Confidential Dossier →</button>
             </div>
-            <div class="security-line"><span class="security-dot"></span> Your questions will load securely after you continue</div>
+            <div class="security-line"><span class="security-dot"></span> Progress resumes on this browser · Private/Incognito sessions may be erased when the private window closes</div>
           </div>
         </div>
       </div>
@@ -1489,13 +1545,45 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-console.log('The Lenbrook Files player build: reset-recovery-v1');
+console.log('The Lenbrook Files player build: auto-resume-v3');
 const auth = firebase.auth();
 const db = firebase.firestore();
+let authInitialized = false;
+
+async function ensureAnonymousSession(){
+  if(!authInitialized){
+    try{
+      await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    }catch(err){
+      console.warn('Could not set local auth persistence:', err);
+    }
+
+    // Wait once for Firebase Auth to finish restoring any existing browser session.
+    await new Promise(resolve=>{
+      const stop = auth.onAuthStateChanged(()=>{
+        stop();
+        resolve();
+      });
+    });
+
+    authInitialized = true;
+  }
+
+  if(auth.currentUser){
+    firebaseUser = auth.currentUser;
+    return firebaseUser;
+  }
+
+  const credential = await auth.signInAnonymously();
+  firebaseUser = credential.user;
+  return firebaseUser;
+}
+
 let firebaseReady = false;
 let firebaseLoadError = '';
 let firebaseUser = null;
 let questions = [];
+let returningPlayer = null;
 
 const state = {
   player:'',
@@ -1506,10 +1594,120 @@ const state = {
   sessionReady:false
 };
 
+
+async function detectReturningPlayer(){
+  try{
+    await ensureAnonymousSession();
+    const snap = await playerRef().get();
+
+    if(!snap.exists){
+      returningPlayer = null;
+      $('welcomeStatus').innerHTML='<span class="security-dot"></span> Live question set · Responses remain sealed during play';
+      return;
+    }
+
+    const data = snap.data() || {};
+    const name = String(data.name || '').trim();
+
+    if(!name){
+      returningPlayer = null;
+      $('welcomeStatus').innerHTML='<span class="security-dot"></span> Live question set · Responses remain sealed during play';
+      return;
+    }
+
+    returningPlayer = {
+      name,
+      status: data.status || 'in_progress',
+      submissionId: data.submissionId || ''
+    };
+
+    $('newPlayerEntry').style.display='none';
+    $('returningPanel').classList.add('active');
+    $('returningName').textContent=`Welcome back, ${name}`;
+
+    if(returningPlayer.status === 'submitted'){
+      $('returningCopy').textContent='This browser has a submitted dossier on file.';
+      $('resumeDossierBtn').textContent='View Submitted Dossier →';
+    }else{
+      $('returningCopy').textContent='Your saved progress is ready. Continue from where you left off.';
+      $('resumeDossierBtn').textContent='Resume Dossier →';
+    }
+
+    $('welcomeStatus').innerHTML='<span class="security-dot"></span> Saved dossier found on this browser';
+  }catch(err){
+    console.warn('Could not check for a returning dossier:', err);
+    returningPlayer = null;
+    $('welcomeStatus').innerHTML='<span class="security-dot"></span> Live question set · Responses remain sealed during play';
+  }
+}
+
+async function openReturningDossier(){
+  if(!returningPlayer) return;
+
+  const btn = $('resumeDossierBtn');
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Opening saved dossier…';
+
+  const connected = await loadQuestionsFromFirestore();
+  if(!connected){
+    $('welcomeStatus').innerHTML=`<span class="security-dot"></span> Could not load questions: ${escapeHtml(firebaseLoadError)}`;
+    btn.disabled = false;
+    btn.textContent = original;
+    return;
+  }
+
+  try{
+    await initializePlayerSession(returningPlayer.name);
+    $('playerChip').textContent=`Assigned: ${returningPlayer.name}`;
+    $('fileTotal').textContent=questions.length;
+    $('reviewTotal').textContent=questions.length;
+
+    if(state.submitted){
+      $('submissionId').textContent=state.submissionId ? `Submission ID: ${state.submissionId}` : 'Dossier already submitted';
+      showScreen('closedScreen');
+    }else{
+      showScreen('gameScreen');
+      renderQuestion();
+    }
+  }catch(err){
+    console.error('Could not resume dossier:', err);
+    $('welcomeStatus').innerHTML='<span class="security-dot"></span> Could not reopen the saved dossier. Please try again.';
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+}
+
+async function startAsDifferentPlayer(){
+  const btn = $('differentPlayerBtn');
+  btn.disabled = true;
+
+  try{
+    // Leave the previous anonymous dossier intact in Firestore, but start a new
+    // browser identity for the next person using this device.
+    await auth.signOut();
+    firebaseUser = null;
+    authInitialized = false;
+    returningPlayer = null;
+
+    await ensureAnonymousSession();
+
+    $('returningPanel').classList.remove('active');
+    $('newPlayerEntry').style.display='';
+    $('playerName').value='';
+    $('nameError').textContent='';
+    $('welcomeStatus').innerHTML='<span class="security-dot"></span> New browser dossier ready';
+    showScreen('identityScreen');
+    setTimeout(()=>$('playerName').focus(), 180);
+  }catch(err){
+    console.error('Could not start a different player session:', err);
+    btn.disabled = false;
+  }
+}
+
 async function loadQuestionsFromFirestore(){
   try {
-    const credential = await auth.signInAnonymously();
-    firebaseUser = credential.user;
+    await ensureAnonymousSession();
 
     // Read ONLY the public questions collection.
     // answerKeys is intentionally never requested by the player app.
@@ -1568,8 +1766,7 @@ function playerRef(){
 
 async function ensurePlayerDocument(){
   if(!firebaseUser){
-    const credential = await auth.signInAnonymously();
-    firebaseUser = credential.user;
+    await ensureAnonymousSession();
   }
 
   const ref = playerRef();
@@ -1691,8 +1888,7 @@ async function saveResponseForCurrent(status, answer){
 
     try{
       // Refresh/re-establish anonymous auth and parent player document, then retry once.
-      const credential = await auth.signInAnonymously();
-      firebaseUser = credential.user;
+      await ensureAnonymousSession();
       await ensurePlayerDocument();
 
       const retry = db.batch();
@@ -1956,6 +2152,9 @@ async function submitDossier(){
 }
 function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 
+$('resumeDossierBtn').addEventListener('click', openReturningDossier);
+$('differentPlayerBtn').addEventListener('click', startAsDifferentPlayer);
+
 $('enterDossierBtn').addEventListener('click',()=>{
   showScreen('identityScreen');
   setTimeout(()=>$('playerName').focus(), 280);
@@ -2017,6 +2216,9 @@ $('reviewBtn').addEventListener('click',showReview);
 $('backToFilesBtn').addEventListener('click',()=>{showScreen('gameScreen');renderQuestion();});
 $('submitBtn').addEventListener('click',submitDossier);
 answerInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lockAnswer();}});
+
+// On every visit, quietly check whether this browser already owns a dossier.
+detectReturningPlayer();
 </script>
 </body>
 </html>
