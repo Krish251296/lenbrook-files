@@ -28,253 +28,61 @@
 .rank-badge{display:inline-grid;place-items:center;min-width:28px;height:28px;border-radius:999px;background:#3d594c;color:#fff;font-weight:800}
 .mini-muted{font-size:12px;color:#989b91}
 @media(max-width:900px){.results-grid{grid-template-columns:1fr}}
-
 </style>
 </head>
 <body>
 <div class="shell">
 <section id="loginScreen" class="login"><div class="login-card"><div class="brand-kicker">Lenbrook Industries · Administration</div><h1>The Lenbrook Files</h1><p>Restricted organizer access. Sign in with an approved administrator account.</p><div class="field"><label for="adminEmail">Email</label><input id="adminEmail" class="input" type="email" autocomplete="username" placeholder="you@lenbrook.com"></div><div class="field"><label for="adminPassword">Password</label><input id="adminPassword" class="input" type="password" autocomplete="current-password" placeholder="Password"></div><button id="loginBtn" class="btn" style="width:100%">Open Admin Dashboard →</button><div id="loginError" class="err"></div></div></section>
 <section id="adminScreen" class="admin-layout hidden">
-<aside class="sidebar"><div class="side-brand"><div class="brand-kicker">Organizer Console · V2</div><h2>The Lenbrook Files</h2></div><div class="nav"><button class="active" data-view="dashboardView">Dashboard</button><button data-view="playersView">Players</button><button data-view="questionsView">Questions</button><button data-view="reviewView">Review & Scoring</button></div><div class="sidebar-bottom"><div id="adminEmailDisplay" class="user-email"></div><button id="logoutBtn" class="btn secondary" style="width:100%">Sign Out</button></div></aside>
+<aside class="sidebar"><div class="side-brand"><div class="brand-kicker">Organizer Console · V2</div><h2>The Lenbrook Files</h2></div><div class="nav"><button class="active" data-view="dashboardView">Dashboard</button><button data-view="playersView">Players</button><button data-view="questionsView">Questions</button><button data-view="reviewView">Review & Scoring</button><button data-view="resultsView">Results & Reset</button></div><div class="sidebar-bottom"><div id="adminEmailDisplay" class="user-email"></div><button id="logoutBtn" class="btn secondary" style="width:100%">Sign Out</button></div></aside>
 <main class="content">
 <section id="dashboardView" class="view active"><div class="topbar"><div><h1>Dashboard</h1><p>Live overview of The Lenbrook Files.</p></div><button class="btn secondary" id="refreshDash">Refresh</button></div><div class="cards"><div class="stat"><b id="statPlayers">—</b><span>Total players</span></div><div class="stat"><b id="statSubmitted">—</b><span>Submitted dossiers</span></div><div class="stat"><b id="statProgress">—</b><span>In progress</span></div><div class="stat"><b id="statQuestions">—</b><span>Active questions</span></div><div class="stat"><b id="statScored">—</b><span>Final scores</span></div></div><div class="panel"><div class="panel-head"><h3>Recent Players</h3></div><div class="table-wrap"><table><thead><tr><th>Name</th><th>Status</th><th>Filed</th><th>Score</th><th>Started</th><th></th></tr></thead><tbody id="recentPlayers"></tbody></table></div></div></section>
 <section id="playersView" class="view"><div class="topbar"><div><h1>Players</h1><p>Open a dossier to inspect the participant's responses.</p></div><div class="toolbar"><input id="playerSearch" class="search" placeholder="Search player…"><button id="refreshPlayers" class="btn secondary">Refresh</button></div></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Status</th><th>Filed</th><th>Pending</th><th>Score</th><th>Submission ID</th><th></th></tr></thead><tbody id="playersTable"></tbody></table></div></div></section>
 <section id="questionsView" class="view"><div class="topbar"><div><h1>Questions</h1><p>Manage the live question set and private answer keys.</p></div><div class="toolbar"><button id="bulkQuestionsBtn" class="btn">Bulk Question Manager</button><button id="addQuestionBtn" class="btn secondary">+ Add Question</button><button id="refreshQuestions" class="btn secondary">Refresh</button></div></div><div class="notice"><strong>Bulk update is ready.</strong> The master 30-question set you supplied is preloaded in this dashboard. Open Bulk Question Manager and save all 30 in one operation.</div><div class="panel"><div class="table-wrap"><table><thead><tr><th>Order</th><th>Question</th><th>Category</th><th>Known answers</th><th>Active</th><th></th></tr></thead><tbody id="questionsTable"></tbody></table></div></div></section>
 <section id="reviewView" class="view"><div class="topbar"><div><h1>Review & Scoring</h1><p>Approve new valid names, reject invalid names, and finalize scores.</p></div><div class="toolbar"><button id="finalizeScoresBtn" class="btn">Finalize Scores</button><button id="refreshReview" class="btn secondary">Refresh</button></div></div><div id="reviewNotice" class="notice">Load the review queue to compare submitted answers with the private known-answer list.</div><div class="review-summary"><div class="review-card"><b id="reviewSubmitted">0</b><span>Submitted dossiers</span></div><div class="review-card"><b id="reviewUnknown">0</b><span>Unknown answer groups</span></div><div class="review-card"><b id="reviewKnown">0</b><span>Known answer hits</span></div><div class="review-card"><b id="reviewFinalized">0</b><span>Finalized scores</span></div></div><div class="panel"><div class="panel-head"><div><h3>Unknown Answer Review</h3><p>Grouped by question and normalized submitted name.</p></div></div><div id="reviewQueue" class="empty">Press Refresh to build the queue.</div></div><div class="panel"><div class="panel-head"><div><h3>Scoreboard Preview</h3><p>Scores are computed from currently approved known answers. Finalized scores are written to player records.</p></div></div><div class="table-wrap"><table class="score-table"><thead><tr><th>Player</th><th>Status</th><th>Current Score</th><th>Final Score</th><th>Submission ID</th></tr></thead><tbody id="scoreTable"></tbody></table></div></div></section>
+
+<section id="resultsView" class="view">
+  <div class="topbar">
+    <div><h1>Results & Reset</h1><p>View finalized rankings and clean up test data before the real event.</p></div>
+    <button id="refreshResults" class="btn secondary">Refresh</button>
+  </div>
+
+  <div class="results-grid">
+    <div class="result-card">
+      <h3>Final Leaderboard</h3>
+      <p>Only finalized scores are shown. Rankings are sorted highest score first.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Rank</th><th>Player</th><th>Score</th><th>Submission ID</th></tr></thead>
+          <tbody id="resultsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="result-card danger-zone">
+      <h3>Reset Test Environment</h3>
+      <p>This removes all player test dossiers and restores the 30 private answer keys to the supplied master list.</p>
+      <div class="mini-muted" style="margin-bottom:14px">Your 30 live questions remain in place. Approved/rejected test decisions are cleared.</div>
+      <button id="resetTestBtn" class="btn danger">Reset Test Environment</button>
+
+      <div id="resetTestConfirm" class="confirm-box hidden">
+        This will permanently delete every player and saved response, then restore q001–q030 answer keys to the supplied master answers.
+        <div class="toolbar" style="margin-top:12px">
+          <button id="confirmResetTest" class="btn danger">Yes, Reset Test Data</button>
+          <button id="cancelResetTest" class="btn secondary">Cancel</button>
+        </div>
+      </div>
+
+      <div id="resetTestMsg" class="err" style="color:#d8c7c2;margin-top:10px"></div>
+    </div>
+  </div>
+</section>
 </main></section>
 <div id="playerDrawer" class="drawer hidden"><div class="drawer-card"><div class="drawer-top"><div><div class="brand-kicker">Participant Dossier</div><h2 id="drawerName">Player</h2></div><button id="closeDrawer" class="btn secondary">Close</button></div><div id="drawerMeta"></div><div id="drawerResponses"></div></div></div>
 <div id="questionModal" class="modal hidden"><div class="modal-card"><h2 id="questionModalTitle">Edit Question</h2><div class="field"><label>Question</label><textarea id="qText" class="input" rows="4"></textarea></div><div class="edit-grid"><div class="field"><label>Category</label><input id="qCategory" class="input" value="General"></div><div class="field"><label>Order</label><input id="qOrder" class="input" type="number" min="1"></div><div class="field"><label>Active</label><select id="qActive" class="input"><option value="true">Yes</option><option value="false">No</option></select></div></div><div class="field"><label>Known valid answers (one per line)</label><textarea id="qAnswers" class="input" rows="6" placeholder="Person One&#10;Person Two"></textarea></div><div id="qError" class="err"></div><div class="modal-actions"><button id="cancelQ" class="btn secondary">Cancel</button><button id="saveQ" class="btn">Save Question</button></div></div></div>
 <div id="bulkModal" class="modal hidden"><div class="modal-card wide"><h2>Bulk Question Manager</h2><p style="color:#6d6c65;line-height:1.55">The 30-question master set below is preloaded from the list you supplied. Edit anything you want, then save all questions and private answer keys together.</p><div class="notice warn" style="color:#5c513d;background:#efe5cd;border-color:#dac7a1"><strong style="color:#493e2d">Save All 30</strong> overwrites <code>q001</code> through <code>q030</code>. Existing player submissions are not deleted.</div><div class="bulk-head"><div>#</div><div>Question</div><div>Known valid answers — one per line</div></div><div id="bulkGrid" class="bulk-grid"></div><div id="bulkMessage" class="err"></div><div class="modal-actions"><button id="loadCurrentBulk" class="btn secondary">Load Current Firestore Set</button><button id="resetMasterBulk" class="btn secondary">Reset to Supplied Master List</button><button id="cancelBulk" class="btn secondary">Cancel</button><button id="saveBulk" class="btn">Save All 30</button></div></div></div>
 </div>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js">
-async function loadResults(){
-  const finalized=playersCache
-    .filter(p=>Number.isFinite(Number(p.finalScore)) || Number.isFinite(Number(p.score)))
-    .map(p=>({
-      ...p,
-      displayScore:Number.isFinite(Number(p.finalScore))?Number(p.finalScore):Number(p.score)
-    }))
-    .sort((a,b)=>b.displayScore-a.displayScore || String(a.name||'').localeCompare(String(b.name||'')));
-
-  $('resultsTable').innerHTML = finalized.map((p,i)=>`<tr>
-    <td><span class="rank-badge">${i+1}</span></td>
-    <td>${esc(p.name||'Unnamed')}</td>
-    <td><b>${p.displayScore}/${p.scoreOutOf||p.totalQuestions||questionsCache.length||30}</b></td>
-    <td>${esc(p.submissionId||'—')}</td>
-  </tr>`).join('') || '<tr><td colspan="4">No finalized scores yet.</td></tr>';
-}
-
-async function deletePlayerTree(playerId){
-  const playerDoc=db.collection('players').doc(playerId);
-  const responses=await playerDoc.collection('responses').get();
-
-  let batch=db.batch();
-  let count=0;
-  const commits=[];
-
-  for(const d of responses.docs){
-    batch.delete(d.ref);
-    count++;
-    if(count===400){
-      commits.push(batch.commit());
-      batch=db.batch();
-      count=0;
-    }
-  }
-  if(count) commits.push(batch.commit());
-  if(commits.length) await Promise.all(commits);
-
-  await playerDoc.delete();
-}
-
-async function resetAllPlayers(){
-  $('resetPlayersMsg').textContent='Deleting test player data…';
-  $('confirmResetPlayers').disabled=true;
-
-  try{
-    const snap=await db.collection('players').get();
-    for(const d of snap.docs){
-      await deletePlayerTree(d.id);
-    }
-
-    $('resetPlayersConfirm').classList.add('hidden');
-    $('resetPlayersMsg').textContent=`Deleted ${snap.size} player dossier(s).`;
-    await loadAll();
-    await loadResults();
-  }catch(err){
-    console.error(err);
-    $('resetPlayersMsg').textContent='Could not delete player data. Check admin permissions and try again.';
-  }finally{
-    $('confirmResetPlayers').disabled=false;
-  }
-}
-
-$('refreshResults')?.addEventListener('click',async()=>{
-  await loadPlayers();
-  await loadResults();
-});
-$('resetPlayersBtn')?.addEventListener('click',()=>{
-  $('resetPlayersConfirm').classList.remove('hidden');
-  $('resetPlayersMsg').textContent='';
-});
-$('cancelResetPlayers')?.addEventListener('click',()=>{
-  $('resetPlayersConfirm').classList.add('hidden');
-});
-$('confirmResetPlayers')?.addEventListener('click',resetAllPlayers);
-
-</script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js">
-async function loadResults(){
-  const finalized=playersCache
-    .filter(p=>Number.isFinite(Number(p.finalScore)) || Number.isFinite(Number(p.score)))
-    .map(p=>({
-      ...p,
-      displayScore:Number.isFinite(Number(p.finalScore))?Number(p.finalScore):Number(p.score)
-    }))
-    .sort((a,b)=>b.displayScore-a.displayScore || String(a.name||'').localeCompare(String(b.name||'')));
-
-  $('resultsTable').innerHTML = finalized.map((p,i)=>`<tr>
-    <td><span class="rank-badge">${i+1}</span></td>
-    <td>${esc(p.name||'Unnamed')}</td>
-    <td><b>${p.displayScore}/${p.scoreOutOf||p.totalQuestions||questionsCache.length||30}</b></td>
-    <td>${esc(p.submissionId||'—')}</td>
-  </tr>`).join('') || '<tr><td colspan="4">No finalized scores yet.</td></tr>';
-}
-
-async function deletePlayerTree(playerId){
-  const playerDoc=db.collection('players').doc(playerId);
-  const responses=await playerDoc.collection('responses').get();
-
-  let batch=db.batch();
-  let count=0;
-  const commits=[];
-
-  for(const d of responses.docs){
-    batch.delete(d.ref);
-    count++;
-    if(count===400){
-      commits.push(batch.commit());
-      batch=db.batch();
-      count=0;
-    }
-  }
-  if(count) commits.push(batch.commit());
-  if(commits.length) await Promise.all(commits);
-
-  await playerDoc.delete();
-}
-
-async function resetAllPlayers(){
-  $('resetPlayersMsg').textContent='Deleting test player data…';
-  $('confirmResetPlayers').disabled=true;
-
-  try{
-    const snap=await db.collection('players').get();
-    for(const d of snap.docs){
-      await deletePlayerTree(d.id);
-    }
-
-    $('resetPlayersConfirm').classList.add('hidden');
-    $('resetPlayersMsg').textContent=`Deleted ${snap.size} player dossier(s).`;
-    await loadAll();
-    await loadResults();
-  }catch(err){
-    console.error(err);
-    $('resetPlayersMsg').textContent='Could not delete player data. Check admin permissions and try again.';
-  }finally{
-    $('confirmResetPlayers').disabled=false;
-  }
-}
-
-$('refreshResults')?.addEventListener('click',async()=>{
-  await loadPlayers();
-  await loadResults();
-});
-$('resetPlayersBtn')?.addEventListener('click',()=>{
-  $('resetPlayersConfirm').classList.remove('hidden');
-  $('resetPlayersMsg').textContent='';
-});
-$('cancelResetPlayers')?.addEventListener('click',()=>{
-  $('resetPlayersConfirm').classList.add('hidden');
-});
-$('confirmResetPlayers')?.addEventListener('click',resetAllPlayers);
-
-</script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js">
-async function loadResults(){
-  const finalized=playersCache
-    .filter(p=>Number.isFinite(Number(p.finalScore)) || Number.isFinite(Number(p.score)))
-    .map(p=>({
-      ...p,
-      displayScore:Number.isFinite(Number(p.finalScore))?Number(p.finalScore):Number(p.score)
-    }))
-    .sort((a,b)=>b.displayScore-a.displayScore || String(a.name||'').localeCompare(String(b.name||'')));
-
-  $('resultsTable').innerHTML = finalized.map((p,i)=>`<tr>
-    <td><span class="rank-badge">${i+1}</span></td>
-    <td>${esc(p.name||'Unnamed')}</td>
-    <td><b>${p.displayScore}/${p.scoreOutOf||p.totalQuestions||questionsCache.length||30}</b></td>
-    <td>${esc(p.submissionId||'—')}</td>
-  </tr>`).join('') || '<tr><td colspan="4">No finalized scores yet.</td></tr>';
-}
-
-async function deletePlayerTree(playerId){
-  const playerDoc=db.collection('players').doc(playerId);
-  const responses=await playerDoc.collection('responses').get();
-
-  let batch=db.batch();
-  let count=0;
-  const commits=[];
-
-  for(const d of responses.docs){
-    batch.delete(d.ref);
-    count++;
-    if(count===400){
-      commits.push(batch.commit());
-      batch=db.batch();
-      count=0;
-    }
-  }
-  if(count) commits.push(batch.commit());
-  if(commits.length) await Promise.all(commits);
-
-  await playerDoc.delete();
-}
-
-async function resetAllPlayers(){
-  $('resetPlayersMsg').textContent='Deleting test player data…';
-  $('confirmResetPlayers').disabled=true;
-
-  try{
-    const snap=await db.collection('players').get();
-    for(const d of snap.docs){
-      await deletePlayerTree(d.id);
-    }
-
-    $('resetPlayersConfirm').classList.add('hidden');
-    $('resetPlayersMsg').textContent=`Deleted ${snap.size} player dossier(s).`;
-    await loadAll();
-    await loadResults();
-  }catch(err){
-    console.error(err);
-    $('resetPlayersMsg').textContent='Could not delete player data. Check admin permissions and try again.';
-  }finally{
-    $('confirmResetPlayers').disabled=false;
-  }
-}
-
-$('refreshResults')?.addEventListener('click',async()=>{
-  await loadPlayers();
-  await loadResults();
-});
-$('resetPlayersBtn')?.addEventListener('click',()=>{
-  $('resetPlayersConfirm').classList.remove('hidden');
-  $('resetPlayersMsg').textContent='';
-});
-$('cancelResetPlayers')?.addEventListener('click',()=>{
-  $('resetPlayersConfirm').classList.add('hidden');
-});
-$('confirmResetPlayers')?.addEventListener('click',resetAllPlayers);
-
-</script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig={apiKey:"AIzaSyBaWX8m5Y6WpX5sJjHzp7VlxfPZQKCsNrU",authDomain:"lenbrook-files.firebaseapp.com",projectId:"lenbrook-files",storageBucket:"lenbrook-files.firebasestorage.app",messagingSenderId:"590853900657",appId:"1:590853900657:web:160d40222e624c711a0ed0",measurementId:"G-11GQ571TKT"};
 firebase.initializeApp(firebaseConfig);const auth=firebase.auth();const db=firebase.firestore();const $=id=>document.getElementById(id);let playersCache=[],questionsCache=[],answerKeysCache=new Map(),editingQuestionId=null,lastReview=null;
@@ -319,7 +127,7 @@ function uniqueByNormalized(arr){const m=new Map();for(const x of arr||[]){const
 async function isAdmin(user){if(!user)return false;const snap=await db.collection('admins').doc(user.uid).get();return snap.exists&&snap.data().active!==false}
 auth.onAuthStateChanged(async user=>{if(!user){$('loginScreen').classList.remove('hidden');$('adminScreen').classList.add('hidden');return}try{if(!(await isAdmin(user))){await auth.signOut();$('loginError').textContent='This account is not authorized as an administrator.';return}$('adminEmailDisplay').textContent=user.email||user.uid;$('loginScreen').classList.add('hidden');$('adminScreen').classList.remove('hidden');await loadAll()}catch(err){console.error(err);$('loginError').textContent='Could not verify administrator access.'}});
 $('loginBtn').addEventListener('click',async()=>{$('loginError').textContent='';const email=$('adminEmail').value.trim(),password=$('adminPassword').value;if(!email||!password){$('loginError').textContent='Enter your email and password.';return}$('loginBtn').disabled=true;$('loginBtn').textContent='Signing in…';try{await auth.signInWithEmailAndPassword(email,password)}catch(err){console.error(err);$('loginError').textContent='Sign-in failed. Check your account and password.'}finally{$('loginBtn').disabled=false;$('loginBtn').textContent='Open Admin Dashboard →'}});$('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});$('logoutBtn').addEventListener('click',()=>auth.signOut());
-document.querySelectorAll('.nav button').forEach(btn=>btn.addEventListener('click',async()=>{document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===btn.dataset.view));if(btn.dataset.view==='reviewView')await loadReview()}));
+document.querySelectorAll('.nav button').forEach(btn=>btn.addEventListener('click',async()=>{document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===btn.dataset.view));if(btn.dataset.view==='resultsView')loadResults();if(btn.dataset.view==='reviewView')await loadReview()}));
 async function loadPlayers(){const snap=await db.collection('players').get();playersCache=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.updatedAt?.seconds||0)-(a.updatedAt?.seconds||0));renderPlayers();renderRecentPlayers()}
 async function loadQuestions(){const [qSnap,aSnap]=await Promise.all([db.collection('questions').get(),db.collection('answerKeys').get()]);questionsCache=qSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||9999)-(b.order||9999));answerKeysCache=new Map(aSnap.docs.map(d=>[d.id,{id:d.id,...d.data()}]));renderQuestions()}
 async function loadDashboard(){$('statPlayers').textContent=playersCache.length;$('statSubmitted').textContent=playersCache.filter(p=>p.status==='submitted').length;$('statProgress').textContent=playersCache.filter(p=>p.status!=='submitted').length;$('statQuestions').textContent=questionsCache.filter(q=>q.active!==false).length;$('statScored').textContent=playersCache.filter(p=>Number.isFinite(Number(p.score))).length}
@@ -350,78 +158,87 @@ $('refreshDash').addEventListener('click',loadAll);$('refreshPlayers').addEventL
 
 async function loadResults(){
   const finalized=playersCache
-    .filter(p=>Number.isFinite(Number(p.finalScore)) || Number.isFinite(Number(p.score)))
-    .map(p=>({
-      ...p,
-      displayScore:Number.isFinite(Number(p.finalScore))?Number(p.finalScore):Number(p.score)
-    }))
-    .sort((a,b)=>b.displayScore-a.displayScore || String(a.name||'').localeCompare(String(b.name||'')));
+    .filter(p=>Number.isFinite(Number(p.score)))
+    .map(p=>({...p,displayScore:Number(p.score)}))
+    .sort((a,b)=>b.displayScore-a.displayScore||String(a.name||'').localeCompare(String(b.name||'')));
 
-  $('resultsTable').innerHTML = finalized.map((p,i)=>`<tr>
+  $('resultsTable').innerHTML=finalized.map((p,i)=>`<tr>
     <td><span class="rank-badge">${i+1}</span></td>
     <td>${esc(p.name||'Unnamed')}</td>
-    <td><b>${p.displayScore}/${p.scoreOutOf||p.totalQuestions||questionsCache.length||30}</b></td>
+    <td><b>${p.displayScore}/${p.scoreOutOf||questionsCache.filter(q=>q.active!==false).length||30}</b></td>
     <td>${esc(p.submissionId||'—')}</td>
-  </tr>`).join('') || '<tr><td colspan="4">No finalized scores yet.</td></tr>';
+  </tr>`).join('')||'<tr><td colspan="4">No finalized scores yet.</td></tr>';
 }
 
 async function deletePlayerTree(playerId){
-  const playerDoc=db.collection('players').doc(playerId);
-  const responses=await playerDoc.collection('responses').get();
+  const playerRef=db.collection('players').doc(playerId);
+  const responses=await playerRef.collection('responses').get();
 
-  let batch=db.batch();
-  let count=0;
-  const commits=[];
-
-  for(const d of responses.docs){
-    batch.delete(d.ref);
-    count++;
-    if(count===400){
-      commits.push(batch.commit());
+  let batch=db.batch(),ops=0;
+  for(const doc of responses.docs){
+    batch.delete(doc.ref);
+    ops++;
+    if(ops===400){
+      await batch.commit();
       batch=db.batch();
-      count=0;
+      ops=0;
     }
   }
-  if(count) commits.push(batch.commit());
-  if(commits.length) await Promise.all(commits);
-
-  await playerDoc.delete();
+  if(ops)await batch.commit();
+  await playerRef.delete();
 }
 
-async function resetAllPlayers(){
-  $('resetPlayersMsg').textContent='Deleting test player data…';
-  $('confirmResetPlayers').disabled=true;
+async function restoreMasterAnswerKeys(){
+  let batch=db.batch(),ops=0;
+  for(const q of MASTER_QUESTIONS){
+    batch.set(
+      db.collection('answerKeys').doc(q.id),
+      {
+        knownAnswers:q.knownAnswers,
+        rejectedAnswers:[],
+        acceptOtherNames:true
+      },
+      {merge:true}
+    );
+    ops++;
+    if(ops===400){
+      await batch.commit();
+      batch=db.batch();
+      ops=0;
+    }
+  }
+  if(ops)await batch.commit();
+}
+
+async function resetTestEnvironment(){
+  $('resetTestMsg').textContent='Resetting test environment…';
+  $('confirmResetTest').disabled=true;
 
   try{
-    const snap=await db.collection('players').get();
-    for(const d of snap.docs){
-      await deletePlayerTree(d.id);
+    const players=await db.collection('players').get();
+    for(const p of players.docs){
+      await deletePlayerTree(p.id);
     }
 
-    $('resetPlayersConfirm').classList.add('hidden');
-    $('resetPlayersMsg').textContent=`Deleted ${snap.size} player dossier(s).`;
+    await restoreMasterAnswerKeys();
+
+    $('resetTestConfirm').classList.add('hidden');
+    $('resetTestMsg').textContent=`Reset complete. Deleted ${players.size} player dossier(s) and restored the master answer keys.`;
+
     await loadAll();
+    await loadReview();
     await loadResults();
   }catch(err){
     console.error(err);
-    $('resetPlayersMsg').textContent='Could not delete player data. Check admin permissions and try again.';
+    $('resetTestMsg').textContent='Reset failed. Check admin permissions and try again.';
   }finally{
-    $('confirmResetPlayers').disabled=false;
+    $('confirmResetTest').disabled=false;
   }
 }
 
-$('refreshResults')?.addEventListener('click',async()=>{
-  await loadPlayers();
-  await loadResults();
-});
-$('resetPlayersBtn')?.addEventListener('click',()=>{
-  $('resetPlayersConfirm').classList.remove('hidden');
-  $('resetPlayersMsg').textContent='';
-});
-$('cancelResetPlayers')?.addEventListener('click',()=>{
-  $('resetPlayersConfirm').classList.add('hidden');
-});
-$('confirmResetPlayers')?.addEventListener('click',resetAllPlayers);
-
+$('refreshResults').addEventListener('click',async()=>{await loadPlayers();await loadResults()});
+$('resetTestBtn').addEventListener('click',()=>{$('resetTestConfirm').classList.remove('hidden');$('resetTestMsg').textContent=''});
+$('cancelResetTest').addEventListener('click',()=>{$('resetTestConfirm').classList.add('hidden')});
+$('confirmResetTest').addEventListener('click',resetTestEnvironment);
 </script>
 </body></html>
