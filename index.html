@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Lenbrook Filesss</title>
+<title>The Lenbrook Files</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
@@ -1318,7 +1318,7 @@ body{font-family:var(--body)}
             <div class="lb-seal" aria-hidden="true">LB</div>
             <div class="welcome-heading">
               <div class="classified">CLASSIFIED · STAFF RECORDS</div>
-              <h1>The Lenbrook Filess</h1>
+              <h1>The Lenbrook Files</h1>
               <p>Staff Dossier · Volume 01</p>
             </div>
           </div>
@@ -1388,7 +1388,7 @@ body{font-family:var(--body)}
 
   <section id="gameScreen" class="screen">
     <div class="topbar">
-      <div class="brand"><div class="eyebrow">Staff Dossier · Vol. 1</div><h1>The Lenbrook Filess</h1></div>
+      <div class="brand"><div class="eyebrow">Staff Dossier · Vol. 1</div><h1>The Lenbrook Files</h1></div>
       <div class="player-chip" id="playerChip"></div>
     </div>
     <div class="game-grid">
@@ -1544,7 +1544,7 @@ async function loadQuestionsFromFirestore(){
     firebaseReady = true;
     firebaseLoadError = '';
 
-    console.log('Lenbrook Filess connected', {
+    console.log('Lenbrook Files connected', {
       uid: firebaseUser.uid,
       activeQuestions: questions.length
     });
@@ -1903,7 +1903,7 @@ $('startBtn').addEventListener('click', async()=>{
   startBtn.disabled=true;
   const originalLabel=startBtn.textContent;
   startBtn.textContent='Opening secure dossier…';
-  $('nameError').textContent='Connecting to Lenbrook Filess…';
+  $('nameError').textContent='Connecting to Lenbrook Files…';
 
   const connected=await loadQuestionsFromFirestore();
 
