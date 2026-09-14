@@ -18,6 +18,17 @@
 @media(max-width:950px){.admin-layout{grid-template-columns:1fr}.sidebar{height:auto;position:relative}.sidebar-bottom{position:static;margin-top:24px}.nav{grid-template-columns:repeat(4,1fr)}.content{padding:22px}.cards{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:720px){.bulk-head{display:none}.bulk-row{grid-template-columns:1fr}.bulk-num{padding-top:0}.review-summary{grid-template-columns:1fr 1fr}}
 @media(max-width:620px){.nav{grid-template-columns:1fr 1fr}.cards{grid-template-columns:1fr 1fr}.topbar{align-items:start;flex-direction:column}.content{padding:16px}.login-card{padding:25px}.login h1{font-size:36px}.review-top{flex-direction:column}}
+
+.results-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr);gap:18px}
+.result-card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px}
+.result-card h3{margin:0 0 8px;font:800 16px Manrope}
+.result-card p{margin:0 0 16px;color:#aaa9a0;line-height:1.5}
+.danger-zone{border-color:#68413d;background:linear-gradient(180deg,#2a211f,#231c1a)}
+.confirm-box{margin-top:12px;padding:14px;border:1px solid #674841;border-radius:12px;background:#1c1716;color:#d9c9c4;font-size:13px;line-height:1.5}
+.rank-badge{display:inline-grid;place-items:center;min-width:28px;height:28px;border-radius:999px;background:#3d594c;color:#fff;font-weight:800}
+.mini-muted{font-size:12px;color:#989b91}
+@media(max-width:900px){.results-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -35,7 +46,235 @@
 <div id="questionModal" class="modal hidden"><div class="modal-card"><h2 id="questionModalTitle">Edit Question</h2><div class="field"><label>Question</label><textarea id="qText" class="input" rows="4"></textarea></div><div class="edit-grid"><div class="field"><label>Category</label><input id="qCategory" class="input" value="General"></div><div class="field"><label>Order</label><input id="qOrder" class="input" type="number" min="1"></div><div class="field"><label>Active</label><select id="qActive" class="input"><option value="true">Yes</option><option value="false">No</option></select></div></div><div class="field"><label>Known valid answers (one per line)</label><textarea id="qAnswers" class="input" rows="6" placeholder="Person One&#10;Person Two"></textarea></div><div id="qError" class="err"></div><div class="modal-actions"><button id="cancelQ" class="btn secondary">Cancel</button><button id="saveQ" class="btn">Save Question</button></div></div></div>
 <div id="bulkModal" class="modal hidden"><div class="modal-card wide"><h2>Bulk Question Manager</h2><p style="color:#6d6c65;line-height:1.55">The 30-question master set below is preloaded from the list you supplied. Edit anything you want, then save all questions and private answer keys together.</p><div class="notice warn" style="color:#5c513d;background:#efe5cd;border-color:#dac7a1"><strong style="color:#493e2d">Save All 30</strong> overwrites <code>q001</code> through <code>q030</code>. Existing player submissions are not deleted.</div><div class="bulk-head"><div>#</div><div>Question</div><div>Known valid answers — one per line</div></div><div id="bulkGrid" class="bulk-grid"></div><div id="bulkMessage" class="err"></div><div class="modal-actions"><button id="loadCurrentBulk" class="btn secondary">Load Current Firestore Set</button><button id="resetMasterBulk" class="btn secondary">Reset to Supplied Master List</button><button id="cancelBulk" class="btn secondary">Cancel</button><button id="saveBulk" class="btn">Save All 30</button></div></div></div>
 </div>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js">
+async function loadResults(){
+  const finalized=playersCache
+    .filter(p=>Number.isFinite(Number(p.finalScore)) || Number.isFinite(Number(p.score)))
+    .map(p=>({
+      ...p,
+      displayScore:Number.isFinite(Number(p.finalScore))?Number(p.finalScore):Number(p.score)
+    }))
+    .sort((a,b)=>b.displayScore-a.displayScore || String(a.name||'').localeCompare(String(b.name||'')));
+
+  $('resultsTable').innerHTML = finalized.map((p,i)=>`<tr>
+    <td><span class="rank-badge">${i+1}</span></td>
+    <td>${esc(p.name||'Unnamed')}</td>
+    <td><b>${p.displayScore}/${p.scoreOutOf||p.totalQuestions||questionsCache.length||30}</b></td>
+    <td>${esc(p.submissionId||'—')}</td>
+  </tr>`).join('') || '<tr><td colspan="4">No finalized scores yet.</td></tr>';
+}
+
+async function deletePlayerTree(playerId){
+  const playerDoc=db.collection('players').doc(playerId);
+  const responses=await playerDoc.collection('responses').get();
+
+  let batch=db.batch();
+  let count=0;
+  const commits=[];
+
+  for(const d of responses.docs){
+    batch.delete(d.ref);
+    count++;
+    if(count===400){
+      commits.push(batch.commit());
+      batch=db.batch();
+      count=0;
+    }
+  }
+  if(count) commits.push(batch.commit());
+  if(commits.length) await Promise.all(commits);
+
+  await playerDoc.delete();
+}
+
+async function resetAllPlayers(){
+  $('resetPlayersMsg').textContent='Deleting test player data…';
+  $('confirmResetPlayers').disabled=true;
+
+  try{
+    const snap=await db.collection('players').get();
+    for(const d of snap.docs){
+      await deletePlayerTree(d.id);
+    }
+
+    $('resetPlayersConfirm').classList.add('hidden');
+    $('resetPlayersMsg').textContent=`Deleted ${snap.size} player dossier(s).`;
+    await loadAll();
+    await loadResults();
+  }catch(err){
+    console.error(err);
+    $('resetPlayersMsg').textContent='Could not delete player data. Check admin permissions and try again.';
+  }finally{
+    $('confirmResetPlayers').disabled=false;
+  }
+}
+
+$('refreshResults')?.addEventListener('click',async()=>{
+  await loadPlayers();
+  await loadResults();
+});
+$('resetPlayersBtn')?.addEventListener('click',()=>{
+  $('resetPlayersConfirm').classList.remove('hidden');
+  $('resetPlayersMsg').textContent='';
+});
+$('cancelResetPlayers')?.addEventListener('click',()=>{
+  $('resetPlayersConfirm').classList.add('hidden');
+});
+$('confirmResetPlayers')?.addEventListener('click',resetAllPlayers);
+
+</script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js">
+async function loadResults(){
+  const finalized=playersCache
+    .filter(p=>Number.isFinite(Number(p.finalScore)) || Number.isFinite(Number(p.score)))
+    .map(p=>({
+      ...p,
+      displayScore:Number.isFinite(Number(p.finalScore))?Number(p.finalScore):Number(p.score)
+    }))
+    .sort((a,b)=>b.displayScore-a.displayScore || String(a.name||'').localeCompare(String(b.name||'')));
+
+  $('resultsTable').innerHTML = finalized.map((p,i)=>`<tr>
+    <td><span class="rank-badge">${i+1}</span></td>
+    <td>${esc(p.name||'Unnamed')}</td>
+    <td><b>${p.displayScore}/${p.scoreOutOf||p.totalQuestions||questionsCache.length||30}</b></td>
+    <td>${esc(p.submissionId||'—')}</td>
+  </tr>`).join('') || '<tr><td colspan="4">No finalized scores yet.</td></tr>';
+}
+
+async function deletePlayerTree(playerId){
+  const playerDoc=db.collection('players').doc(playerId);
+  const responses=await playerDoc.collection('responses').get();
+
+  let batch=db.batch();
+  let count=0;
+  const commits=[];
+
+  for(const d of responses.docs){
+    batch.delete(d.ref);
+    count++;
+    if(count===400){
+      commits.push(batch.commit());
+      batch=db.batch();
+      count=0;
+    }
+  }
+  if(count) commits.push(batch.commit());
+  if(commits.length) await Promise.all(commits);
+
+  await playerDoc.delete();
+}
+
+async function resetAllPlayers(){
+  $('resetPlayersMsg').textContent='Deleting test player data…';
+  $('confirmResetPlayers').disabled=true;
+
+  try{
+    const snap=await db.collection('players').get();
+    for(const d of snap.docs){
+      await deletePlayerTree(d.id);
+    }
+
+    $('resetPlayersConfirm').classList.add('hidden');
+    $('resetPlayersMsg').textContent=`Deleted ${snap.size} player dossier(s).`;
+    await loadAll();
+    await loadResults();
+  }catch(err){
+    console.error(err);
+    $('resetPlayersMsg').textContent='Could not delete player data. Check admin permissions and try again.';
+  }finally{
+    $('confirmResetPlayers').disabled=false;
+  }
+}
+
+$('refreshResults')?.addEventListener('click',async()=>{
+  await loadPlayers();
+  await loadResults();
+});
+$('resetPlayersBtn')?.addEventListener('click',()=>{
+  $('resetPlayersConfirm').classList.remove('hidden');
+  $('resetPlayersMsg').textContent='';
+});
+$('cancelResetPlayers')?.addEventListener('click',()=>{
+  $('resetPlayersConfirm').classList.add('hidden');
+});
+$('confirmResetPlayers')?.addEventListener('click',resetAllPlayers);
+
+</script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js">
+async function loadResults(){
+  const finalized=playersCache
+    .filter(p=>Number.isFinite(Number(p.finalScore)) || Number.isFinite(Number(p.score)))
+    .map(p=>({
+      ...p,
+      displayScore:Number.isFinite(Number(p.finalScore))?Number(p.finalScore):Number(p.score)
+    }))
+    .sort((a,b)=>b.displayScore-a.displayScore || String(a.name||'').localeCompare(String(b.name||'')));
+
+  $('resultsTable').innerHTML = finalized.map((p,i)=>`<tr>
+    <td><span class="rank-badge">${i+1}</span></td>
+    <td>${esc(p.name||'Unnamed')}</td>
+    <td><b>${p.displayScore}/${p.scoreOutOf||p.totalQuestions||questionsCache.length||30}</b></td>
+    <td>${esc(p.submissionId||'—')}</td>
+  </tr>`).join('') || '<tr><td colspan="4">No finalized scores yet.</td></tr>';
+}
+
+async function deletePlayerTree(playerId){
+  const playerDoc=db.collection('players').doc(playerId);
+  const responses=await playerDoc.collection('responses').get();
+
+  let batch=db.batch();
+  let count=0;
+  const commits=[];
+
+  for(const d of responses.docs){
+    batch.delete(d.ref);
+    count++;
+    if(count===400){
+      commits.push(batch.commit());
+      batch=db.batch();
+      count=0;
+    }
+  }
+  if(count) commits.push(batch.commit());
+  if(commits.length) await Promise.all(commits);
+
+  await playerDoc.delete();
+}
+
+async function resetAllPlayers(){
+  $('resetPlayersMsg').textContent='Deleting test player data…';
+  $('confirmResetPlayers').disabled=true;
+
+  try{
+    const snap=await db.collection('players').get();
+    for(const d of snap.docs){
+      await deletePlayerTree(d.id);
+    }
+
+    $('resetPlayersConfirm').classList.add('hidden');
+    $('resetPlayersMsg').textContent=`Deleted ${snap.size} player dossier(s).`;
+    await loadAll();
+    await loadResults();
+  }catch(err){
+    console.error(err);
+    $('resetPlayersMsg').textContent='Could not delete player data. Check admin permissions and try again.';
+  }finally{
+    $('confirmResetPlayers').disabled=false;
+  }
+}
+
+$('refreshResults')?.addEventListener('click',async()=>{
+  await loadPlayers();
+  await loadResults();
+});
+$('resetPlayersBtn')?.addEventListener('click',()=>{
+  $('resetPlayersConfirm').classList.remove('hidden');
+  $('resetPlayersMsg').textContent='';
+});
+$('cancelResetPlayers')?.addEventListener('click',()=>{
+  $('resetPlayersConfirm').classList.add('hidden');
+});
+$('confirmResetPlayers')?.addEventListener('click',resetAllPlayers);
+
+</script>
 <script>
 const firebaseConfig={apiKey:"AIzaSyBaWX8m5Y6WpX5sJjHzp7VlxfPZQKCsNrU",authDomain:"lenbrook-files.firebaseapp.com",projectId:"lenbrook-files",storageBucket:"lenbrook-files.firebasestorage.app",messagingSenderId:"590853900657",appId:"1:590853900657:web:160d40222e624c711a0ed0",measurementId:"G-11GQ571TKT"};
 firebase.initializeApp(firebaseConfig);const auth=firebase.auth();const db=firebase.firestore();const $=id=>document.getElementById(id);let playersCache=[],questionsCache=[],answerKeysCache=new Map(),editingQuestionId=null,lastReview=null;
@@ -108,5 +347,81 @@ async function updateDecision(group,approve){const ref=db.collection('answerKeys
 window.approveCandidate=async i=>{const g=lastReview?.pending?.[i];if(!g)return;try{await updateDecision(g,true);await loadReview()}catch(err){console.error(err);alert('Could not approve this answer.')}};window.rejectCandidate=async i=>{const g=lastReview?.pending?.[i];if(!g)return;try{await updateDecision(g,false);await loadReview()}catch(err){console.error(err);alert('Could not reject this answer.')}};
 $('finalizeScoresBtn').addEventListener('click',async()=>{if(!lastReview)await loadReview();if(lastReview?.pending?.length){alert('Review every unknown answer before finalizing scores.');return}if(!confirm('Finalize scores for all currently submitted dossiers?'))return;$('finalizeScoresBtn').disabled=true;$('finalizeScoresBtn').textContent='Finalizing…';try{const activeCount=questionsCache.filter(q=>q.active!==false).length;let batch=db.batch(),ops=0;for(const x of lastReview.scorePreview){batch.set(db.collection('players').doc(x.player.id),{score:x.score,scoreOutOf:activeCount,scoredAt:firebase.firestore.FieldValue.serverTimestamp(),reviewComplete:true},{merge:true});ops++;if(ops===450){await batch.commit();batch=db.batch();ops=0}}if(ops)await batch.commit();await loadReview();await loadPlayers();await loadDashboard();alert('Scores finalized successfully.')}catch(err){console.error(err);alert('Could not finalize scores.')}finally{$('finalizeScoresBtn').textContent='Finalize Scores';if(lastReview)$('finalizeScoresBtn').disabled=lastReview.pending.length>0}});
 $('refreshDash').addEventListener('click',loadAll);$('refreshPlayers').addEventListener('click',loadPlayers);$('refreshQuestions').addEventListener('click',loadQuestions);$('refreshReview').addEventListener('click',loadReview);
+
+async function loadResults(){
+  const finalized=playersCache
+    .filter(p=>Number.isFinite(Number(p.finalScore)) || Number.isFinite(Number(p.score)))
+    .map(p=>({
+      ...p,
+      displayScore:Number.isFinite(Number(p.finalScore))?Number(p.finalScore):Number(p.score)
+    }))
+    .sort((a,b)=>b.displayScore-a.displayScore || String(a.name||'').localeCompare(String(b.name||'')));
+
+  $('resultsTable').innerHTML = finalized.map((p,i)=>`<tr>
+    <td><span class="rank-badge">${i+1}</span></td>
+    <td>${esc(p.name||'Unnamed')}</td>
+    <td><b>${p.displayScore}/${p.scoreOutOf||p.totalQuestions||questionsCache.length||30}</b></td>
+    <td>${esc(p.submissionId||'—')}</td>
+  </tr>`).join('') || '<tr><td colspan="4">No finalized scores yet.</td></tr>';
+}
+
+async function deletePlayerTree(playerId){
+  const playerDoc=db.collection('players').doc(playerId);
+  const responses=await playerDoc.collection('responses').get();
+
+  let batch=db.batch();
+  let count=0;
+  const commits=[];
+
+  for(const d of responses.docs){
+    batch.delete(d.ref);
+    count++;
+    if(count===400){
+      commits.push(batch.commit());
+      batch=db.batch();
+      count=0;
+    }
+  }
+  if(count) commits.push(batch.commit());
+  if(commits.length) await Promise.all(commits);
+
+  await playerDoc.delete();
+}
+
+async function resetAllPlayers(){
+  $('resetPlayersMsg').textContent='Deleting test player data…';
+  $('confirmResetPlayers').disabled=true;
+
+  try{
+    const snap=await db.collection('players').get();
+    for(const d of snap.docs){
+      await deletePlayerTree(d.id);
+    }
+
+    $('resetPlayersConfirm').classList.add('hidden');
+    $('resetPlayersMsg').textContent=`Deleted ${snap.size} player dossier(s).`;
+    await loadAll();
+    await loadResults();
+  }catch(err){
+    console.error(err);
+    $('resetPlayersMsg').textContent='Could not delete player data. Check admin permissions and try again.';
+  }finally{
+    $('confirmResetPlayers').disabled=false;
+  }
+}
+
+$('refreshResults')?.addEventListener('click',async()=>{
+  await loadPlayers();
+  await loadResults();
+});
+$('resetPlayersBtn')?.addEventListener('click',()=>{
+  $('resetPlayersConfirm').classList.remove('hidden');
+  $('resetPlayersMsg').textContent='';
+});
+$('cancelResetPlayers')?.addEventListener('click',()=>{
+  $('resetPlayersConfirm').classList.add('hidden');
+});
+$('confirmResetPlayers')?.addEventListener('click',resetAllPlayers);
+
 </script>
 </body></html>
