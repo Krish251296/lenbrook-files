@@ -1505,10 +1505,11 @@ body{font-family:var(--body)}
   <section id="reviewScreen" class="screen">
     <div class="review-card">
       <h2>Dossier Review</h2>
-      <p class="review-copy">Review what you’ve filed before closing the case. Pending files can still be reopened and answered.</p>
+      <p class="review-copy">Review what you’ve filed before closing the case. You may submit at any time — pending or unopened files will simply receive no answer.</p>
       <div class="review-summary">
         <div><b id="reviewFiled">0</b><span>Filed</span></div>
         <div><b id="reviewPending">0</b><span>Pending</span></div>
+        <div><b id="reviewUnopened">0</b><span>Unopened</span></div>
         <div><b id="reviewTotal">0</b><span>Total Files</span></div>
       </div>
       <div id="reviewList" class="review-list"></div>
@@ -1545,7 +1546,7 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-console.log('The Lenbrook Files player build: auto-resume-v3');
+console.log('The Lenbrook Files player build: partial-submit-v4');
 const auth = firebase.auth();
 const db = firebase.firestore();
 let authInitialized = false;
@@ -2090,33 +2091,49 @@ function nextFile(){
 function showReview(){
   const c=counts();
   $('reviewFiled').textContent=c.filed;
-  $('reviewPending').textContent=c.pending+c.unopened;
+  $('reviewPending').textContent=c.pending;
+  $('reviewUnopened').textContent=c.unopened;
   $('reviewTotal').textContent=questions.length;
+
+  const submitBtn=$('submitBtn');
+  submitBtn.disabled=false;
+  submitBtn.dataset.confirm='';
+  submitBtn.textContent='Submit Dossier';
+
   const list=$('reviewList');list.innerHTML='';
   questions.forEach((q,i)=>{
     const r=state.responses[i];
-    const effective=r.status==='filed'?'filed':'pending';
+    const status=r.status==='filed' ? 'filed' : (r.status==='pending' ? 'pending' : 'unopened');
+    const label=status==='filed' ? 'Filed' : (status==='pending' ? 'Pending' : 'Unopened');
+    const pillClass=status==='filed' ? 'filed' : 'pending';
     const row=document.createElement('div');row.className='review-item';
-    row.innerHTML=`<div class="review-num">#${String(i+1).padStart(2,'0')}</div><div class="review-question">${escapeHtml(q.q)}</div><button type="button" class="status-pill ${effective}">${effective==='filed'?'Filed':'Review'}</button>`;
+    row.innerHTML=`<div class="review-num">#${String(i+1).padStart(2,'0')}</div><div class="review-question">${escapeHtml(q.q)}</div><button type="button" class="status-pill ${pillClass}">${label}</button>`;
     row.querySelector('button').addEventListener('click',()=>goToFile(i));
     list.appendChild(row);
   });
-  $('submitNote').textContent='';
+
+  if(c.pending+c.unopened>0){
+    $('submitNote').textContent=`You can submit now. ${c.pending} pending and ${c.unopened} unopened file(s) will be left unanswered.`;
+  }else{
+    $('submitNote').textContent='All case files have been processed.';
+  }
+
   showScreen('reviewScreen');
 }
 async function submitDossier(){
   const c=counts();
+  const submitBtn=$('submitBtn');
 
-  if(c.pending+c.unopened>0){
-    $('submitNote').textContent=`${c.pending+c.unopened} file(s) are still pending. You can still submit, but those files will have no final answer.`;
-    if(!$('submitBtn').dataset.confirm){
-      $('submitBtn').dataset.confirm='1';
-      $('submitBtn').textContent='Submit Anyway';
-      return;
-    }
+  // Partial submission is intentionally allowed. The player does NOT need
+  // to visit every question or mark unopened questions as skipped first.
+  if(c.pending+c.unopened>0 && !submitBtn.dataset.confirm){
+    submitBtn.dataset.confirm='1';
+    submitBtn.textContent='Confirm Partial Submission';
+    $('submitNote').textContent=`You are about to close the case with ${c.pending} pending and ${c.unopened} unopened file(s). Those files will receive no answer. Tap again to confirm.`;
+    return;
   }
 
-  const submitBtn=$('submitBtn');
+
   submitBtn.disabled=true;
   submitBtn.textContent='Submitting Dossier…';
   $('submitNote').textContent='Sealing your dossier…';
@@ -2147,7 +2164,7 @@ async function submitDossier(){
     console.error('Dossier submission failed:', err);
     $('submitNote').textContent='Could not submit your dossier. Please try again.';
     submitBtn.disabled=false;
-    submitBtn.textContent=$('submitBtn').dataset.confirm ? 'Submit Anyway' : 'Submit Dossier';
+    submitBtn.textContent=$('submitBtn').dataset.confirm ? 'Confirm Partial Submission' : 'Submit Dossier';
   }
 }
 function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
