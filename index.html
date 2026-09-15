@@ -1617,6 +1617,43 @@ body{font-family:var(--body)}
 }
 
 </style>
+
+<style>
+/* REVIEW FEEDBACK — targeted mobile refinements only */
+@media (max-width:600px){
+  #welcomeScreen .mission-copy{
+    font-size:11px !important;
+    line-height:1.38 !important;
+  }
+  #welcomeScreen .briefing b{
+    font-size:10px !important;
+  }
+  #welcomeScreen .briefing span:not(.brief-num){
+    font-size:9.5px !important;
+    line-height:1.2 !important;
+  }
+  #welcomeScreen .brief-num{
+    color:#fff8e7 !important;
+    font-size:10px !important;
+    font-weight:800 !important;
+  }
+
+  /* Keep the tall physical case-file sheet, but keep controls close to the clue. */
+  #gameScreen .answer-wrap{
+    margin-top:14px !important;
+  }
+
+  /* Whole review question row is now a touch target. */
+  #reviewScreen .review-item{
+    cursor:pointer;
+    -webkit-tap-highlight-color:rgba(184,134,46,.14);
+  }
+  #reviewScreen .review-question{
+    cursor:pointer;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="shell">
@@ -1636,7 +1673,7 @@ body{font-family:var(--body)}
 
           <p class="mission-copy">
             You’ve been handed a collection of case files about the people around Lenbrook. Read each clue,
-            submit your best answer, and file it away. No answers are revealed while the dossier is open.
+            submit your best answer, and file it away. Answers remain sealed until the dossier is closed.
           </p>
 
           <div class="briefing-grid" aria-label="How the challenge works">
@@ -1646,11 +1683,11 @@ body{font-family:var(--body)}
             </div>
             <div class="briefing">
               <b><span class="brief-num">2</span> File it</b>
-              <span>Submit one or more names, or mark the file pending.</span>
+              <span>Enter one or more names, or leave the file pending.</span>
             </div>
             <div class="briefing">
               <b><span class="brief-num">3</span> Review</b>
-              <span>Reopen pending files before final submission.</span>
+              <span>Revisit pending files before closing your dossier.</span>
             </div>
           </div>
 
@@ -1731,7 +1768,7 @@ body{font-family:var(--body)}
                 <div id="answerError" class="inline-note" aria-live="polite"></div>
                 <div class="card-actions">
                   <button id="lockBtn" class="btn" type="button">File Answer</button>
-                  <button id="skipBtn" class="btn ghost" type="button">Skip for Now</button>
+                  <button id="skipBtn" class="btn ghost" type="button">Mark Pending</button>
                 </div>
               </div>
             </section>
@@ -1812,7 +1849,7 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-console.log('The Lenbrook Files player build: mobile-v8');
+console.log('The Lenbrook Files player build: review-feedback');
 const auth = firebase.auth();
 const db = firebase.firestore();
 let authInitialized = false;
@@ -2307,7 +2344,7 @@ function flipToStatus(status){
 async function lockAnswer(){
   const value=answerInput.value.trim();
   if(!value){
-    $('answerError').textContent='Enter an answer, or choose Skip for Now.';
+    $('answerError').textContent='Enter an answer, or choose Mark Pending.';
     return;
   }
 
@@ -2374,7 +2411,16 @@ function showReview(){
     const pillClass=status==='filed' ? 'filed' : 'pending';
     const row=document.createElement('div');row.className='review-item';
     row.innerHTML=`<div class="review-num">#${String(i+1).padStart(2,'0')}</div><div class="review-question">${escapeHtml(q.q)}</div><button type="button" class="status-pill ${pillClass}">${label}</button>`;
-    row.querySelector('button').addEventListener('click',()=>goToFile(i));
+    row.setAttribute('role','button');
+    row.setAttribute('tabindex','0');
+    row.setAttribute('aria-label',`Open file ${i+1}: ${q.q}`);
+    row.addEventListener('click',()=>goToFile(i));
+    row.addEventListener('keydown',(e)=>{
+      if(e.key==='Enter' || e.key===' '){
+        e.preventDefault();
+        goToFile(i);
+      }
+    });
     list.appendChild(row);
   });
 
