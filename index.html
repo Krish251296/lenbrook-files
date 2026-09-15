@@ -1438,6 +1438,35 @@ body{font-family:var(--body)}
   .card-actions .btn,.card-actions .btn.ghost{font-size:9px;}
 }
 
+
+/* ===== COMPACT PHONE WELCOME — FINAL OVERRIDE ===== */
+@media (max-width: 600px){
+  #welcomeScreen .shell{padding:12px 9px 18px;}
+  #welcomeScreen .welcome-wrap{margin:0 auto 10px;}
+  #welcomeScreen .welcome-kicker{margin:0 0 27px;font-size:7px;letter-spacing:.12em;}
+  #welcomeScreen .welcome-folder{padding:7px;border-radius:13px;}
+  #welcomeScreen .welcome-folder::before{top:-18px;left:11px;width:138px;height:27px;}
+  #welcomeScreen .welcome-folder::after{top:-12px;left:21px;font-size:6px;}
+  #welcomeScreen .welcome-paper{padding:14px 13px 13px;border-radius:10px;}
+  #welcomeScreen .welcome-paper::before{width:84px;height:84px;right:-30px;top:-30px;}
+  #welcomeScreen .welcome-top{gap:9px;margin-bottom:8px;align-items:center;}
+  #welcomeScreen .lb-seal{width:38px;height:38px;flex:0 0 38px;font-size:12px;}
+  #welcomeScreen .welcome-heading .classified{display:inline-block;margin-bottom:4px;padding:3px 6px;font-size:6px;letter-spacing:.10em;}
+  #welcomeScreen .welcome-heading h1{font-size:29px;line-height:.88;letter-spacing:-.035em;}
+  #welcomeScreen .welcome-heading p{margin-top:5px;font-size:6.5px;letter-spacing:.10em;}
+  #welcomeScreen .mission-copy{margin:9px 0 9px;padding-left:9px;font-size:10.5px;line-height:1.38;}
+  #welcomeScreen .briefing-grid{display:grid;grid-template-columns:1fr;gap:5px;margin:8px 0 9px;}
+  #welcomeScreen .briefing{display:grid;grid-template-columns:25px minmax(0,1fr);grid-template-rows:auto auto;column-gap:8px;row-gap:0;padding:6px 8px;border-radius:8px;min-height:47px;align-items:center;}
+  #welcomeScreen .briefing b{display:block;grid-column:2;grid-row:1;margin:0;font-size:9px;line-height:1.1;letter-spacing:.025em;}
+  #welcomeScreen .brief-num{display:grid;grid-column:1;grid-row:1 / span 2;width:22px;height:22px;margin:0;place-items:center;align-self:center;font-size:8px;}
+  #welcomeScreen .briefing span:not(.brief-num){display:block;grid-column:2;grid-row:2;margin:2px 0 0;font-size:9px;line-height:1.18;}
+  #welcomeScreen .welcome-form{padding-top:9px;}
+  #welcomeScreen .intro-actions{margin:0;}
+  #welcomeScreen .intro-actions .btn{min-height:43px;padding:9px 12px;font-size:10.5px;border-radius:9px;}
+  #welcomeScreen .security-line{margin-top:7px;font-size:6.5px;line-height:1.2;}
+  #welcomeScreen .resume-panel{padding:10px;}
+}
+
 </style>
 </head>
 <body>
