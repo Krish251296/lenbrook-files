@@ -1467,6 +1467,155 @@ body{font-family:var(--body)}
   #welcomeScreen .resume-panel{padding:10px;}
 }
 
+
+/* ===== V8 PHONE-FIRST PRODUCTION OVERRIDE ===== */
+@media (max-width: 600px){
+  html{-webkit-text-size-adjust:100%;}
+  body{min-height:100dvh;}
+
+  /* Welcome: compact enough to reach the CTA quickly */
+  #welcomeScreen .shell{padding:10px 8px 16px;}
+  #welcomeScreen .welcome-wrap{margin:0 auto 8px;}
+  #welcomeScreen .welcome-kicker{
+    margin:0 0 24px;
+    font-size:7px;
+    line-height:1.2;
+    letter-spacing:.10em;
+  }
+  #welcomeScreen .welcome-folder{padding:6px;border-radius:12px;}
+  #welcomeScreen .welcome-folder::before{
+    top:-17px;left:10px;width:132px;height:25px;border-radius:10px 10px 0 0;
+  }
+  #welcomeScreen .welcome-folder::after{
+    top:-11px;left:19px;font-size:5.8px;letter-spacing:.08em;
+  }
+  #welcomeScreen .welcome-paper{padding:12px 12px 11px;border-radius:9px;}
+  #welcomeScreen .welcome-paper::before{width:72px;height:72px;right:-26px;top:-27px;}
+  #welcomeScreen .welcome-top{gap:9px;margin-bottom:7px;align-items:center;}
+  #welcomeScreen .lb-seal{width:36px;height:36px;flex:0 0 36px;font-size:11px;}
+  #welcomeScreen .welcome-heading .classified{
+    margin-bottom:3px;padding:3px 6px;font-size:5.8px;letter-spacing:.08em;
+  }
+  #welcomeScreen .welcome-heading h1{
+    font-size:clamp(27px,8.5vw,33px);line-height:.9;letter-spacing:-.035em;
+  }
+  #welcomeScreen .welcome-heading p{margin-top:4px;font-size:6px;letter-spacing:.08em;}
+  #welcomeScreen .mission-copy{
+    margin:8px 0;padding-left:9px;font-size:10px;line-height:1.34;
+  }
+  #welcomeScreen .briefing-grid{gap:4px;margin:7px 0 8px;}
+  #welcomeScreen .briefing{
+    display:grid;
+    grid-template-columns:23px minmax(0,1fr);
+    grid-template-rows:auto auto;
+    column-gap:8px;
+    row-gap:1px;
+    min-height:42px;
+    padding:5px 8px;
+    border-radius:8px;
+    align-items:center;
+  }
+  #welcomeScreen .briefing b{
+    display:block;grid-column:2;grid-row:1;margin:0;
+    font-size:8.5px;line-height:1.05;letter-spacing:.01em;
+  }
+  #welcomeScreen .brief-num{
+    display:grid!important;
+    grid-column:1!important;
+    grid-row:1 / span 2!important;
+    width:21px!important;height:21px!important;
+    margin:0!important;
+    place-items:center!important;
+    align-self:center;
+    font-size:7.5px!important;
+  }
+  #welcomeScreen .briefing span:not(.brief-num){
+    display:block;grid-column:2;grid-row:2;
+    margin:1px 0 0;font-size:8.5px;line-height:1.15;
+  }
+  #welcomeScreen .welcome-form{padding-top:7px;}
+  #welcomeScreen .intro-actions{margin:0;}
+  #welcomeScreen .intro-actions .btn{
+    min-height:44px;padding:9px 12px;font-size:11px;border-radius:9px;
+  }
+  #welcomeScreen .security-line{margin-top:6px;font-size:6.3px;line-height:1.15;}
+
+  /* Identity screen */
+  #identityScreen .shell{padding:10px 8px 16px;}
+  #identityScreen .welcome-wrap{margin:0 auto 8px;}
+  #identityScreen .welcome-kicker{margin:0 0 24px;font-size:7px;}
+  #identityScreen .welcome-folder{padding:7px;}
+  #identityScreen .welcome-paper{padding:16px 13px 14px;}
+  #identityScreen .welcome-heading h1{font-size:30px;}
+  #identityScreen .mission-copy{margin:10px 0;font-size:11px;line-height:1.4;}
+  #identityScreen .name-label{margin:9px 0 5px;}
+  #identityScreen .security-line{font-size:7px;line-height:1.25;}
+
+  /* Game screen */
+  #gameScreen .topbar{margin-bottom:7px;}
+  #gameScreen .brand h1{font-size:21px;}
+  #gameScreen .brand .eyebrow{font-size:6.5px;}
+  #gameScreen .player-chip{max-width:45%;font-size:7px;padding:6px 7px;}
+  #gameScreen .progress-track{margin-bottom:8px;}
+
+  #gameScreen .stage{
+    width:100%;
+    height:clamp(390px,61dvh,500px);
+    min-height:390px;
+    aspect-ratio:auto;
+  }
+  #gameScreen .face{padding:17px 14px 13px;}
+  #gameScreen .clue{
+    font-size:clamp(18px,5vw,21px);
+    line-height:1.18;
+    margin:10px 0 9px;
+  }
+  #gameScreen .answer-input{min-height:46px;}
+  #gameScreen .card-actions{grid-template-columns:1fr 1fr;gap:7px;margin-top:7px;}
+  #gameScreen .card-actions .btn,
+  #gameScreen .card-actions .btn.ghost{
+    min-height:44px;padding:8px 6px;font-size:9.5px;
+  }
+
+  /* Keep the case index useful without making the question screen enormous */
+  #gameScreen .side-panel{padding:10px;margin-top:0;}
+  #gameScreen .side-title{font-size:8px;margin-bottom:7px;}
+  #gameScreen .stat-row{margin-bottom:8px;gap:5px;}
+  #gameScreen .stat{padding:6px 4px;}
+  #gameScreen .stat b{font-size:16px;}
+  #gameScreen .index-grid{grid-template-columns:repeat(6,1fr);gap:4px;}
+  #gameScreen .index-btn{min-height:31px;font-size:8px;}
+  #gameScreen .legend{margin-top:7px;font-size:7.5px;}
+  #gameScreen #reviewBtn{min-height:42px;margin-top:8px!important;}
+
+  /* Review screen */
+  #reviewScreen .review-card{margin:6px auto;padding:17px 13px;}
+  #reviewScreen .review-card h2{font-size:27px;margin-bottom:7px;}
+  #reviewScreen .review-summary{
+    grid-template-columns:repeat(4,1fr);
+    gap:5px;margin:11px 0;
+  }
+  #reviewScreen .review-summary>div{padding:8px 3px;}
+  #reviewScreen .review-summary>div:last-child{grid-column:auto;}
+  #reviewScreen .review-summary b{font-size:19px;}
+  #reviewScreen .review-summary span{font-size:6.5px;letter-spacing:.02em;}
+  #reviewScreen .review-list{max-height:50dvh;}
+  #reviewScreen .review-actions{gap:7px;margin-top:11px;}
+  #reviewScreen .review-actions .btn{min-height:45px;flex:1 1 100%;}
+
+  /* Closed screen */
+  #closedScreen .closed-card{margin:8px auto;padding:22px 15px;}
+}
+
+@media (max-width: 380px){
+  #welcomeScreen .welcome-heading h1{font-size:26px;}
+  #welcomeScreen .mission-copy{font-size:9.5px;}
+  #welcomeScreen .briefing{min-height:40px;}
+  #gameScreen .stage{height:59dvh;min-height:375px;}
+  #reviewScreen .review-summary{grid-template-columns:1fr 1fr;}
+  #reviewScreen .review-summary>div:last-child{grid-column:auto;}
+}
+
 </style>
 </head>
 <body>
@@ -1663,7 +1812,7 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-console.log('The Lenbrook Files player build: partial-submit-v4');
+console.log('The Lenbrook Files player build: mobile-v8');
 const auth = firebase.auth();
 const db = firebase.firestore();
 let authInitialized = false;
